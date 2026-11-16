@@ -688,14 +688,13 @@ export function App() {
           Loads independently so the Hero paints instantly without lag
           ======================================================== */}
       <Suspense fallback={<div className="w-full min-h-screen bg-[#140803]" />}>
-        {/* SECTION 2: THE POUR */}
+        {/* SECTION 2: THE POUR (ONLY BELGIAN CHOCOLATE POURING) */}
         <section
           id="the-pour"
           ref={pourContainerRef}
           className="relative w-full min-h-screen h-screen overflow-hidden bg-[#140803] flex items-center justify-center section-render-opt"
         >
           <ChocolateScrollExperience
-            currentFlavor={currentFlavor}
             isActive={isPourLocked}
             isAutoPlay={isAutoPlay}
             onComplete={handlePourComplete}
@@ -705,7 +704,6 @@ export function App() {
 
         {/* SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY */}
         <AutoFlavorShowcase
-          currentFlavorId={currentFlavor.id}
           isActive={true}
           onGoToHeritage={() => scrollToTarget('#heritage')}
           onGoToFlavors={() => scrollToTarget('#flavors')}

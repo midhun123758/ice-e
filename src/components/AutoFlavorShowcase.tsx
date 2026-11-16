@@ -153,27 +153,6 @@ export function AutoFlavorShowcase({
     };
   }, []);
 
-  // Synchronize initial flavor
-  useEffect(() => {
-    if (!isActive) return;
-
-    if (currentFlavorId) {
-      const flavorMap: Record<string, number> = {
-        strawberry: 0,
-        straw: 0,
-        blackberry: 1,
-        berries: 1,
-        banana: 2,
-        kiwi: 3,
-        kiwies: 3,
-        chocolate: 2,
-      };
-      if (flavorMap[currentFlavorId] !== undefined) {
-        setCurrentIdx(flavorMap[currentFlavorId]);
-      }
-    }
-  }, [isActive, currentFlavorId]);
-
   const goToSlide = (newIdx: number, dir: number) => {
     setDirection(dir);
     setCurrentIdx((newIdx + total) % total);

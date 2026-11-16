@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, ArrowDown } from 'lucide-react';
 
 interface ChocolateScrollExperienceProps {
-  currentFlavor: {
+  currentFlavor?: {
     id: string;
     name: string;
     color: string;
@@ -20,8 +20,16 @@ interface ChocolateScrollExperienceProps {
 // 58 High-Resolution Lossless PNG Frames (000 to 057)
 const TOTAL_FRAMES = 58;
 
+// Pure artisanal Belgian Chocolate Pouring Theme
+const THEME = {
+  title: '#241005', // Deep Belgian dark chocolate
+  eyebrow: '#512A1C',
+  dot: '#512A1C',
+  body: 'rgba(57, 29, 18, 0.92)',
+  notes: 'rgba(81, 42, 28, 0.85)',
+};
+
 export function ChocolateScrollExperience({
-  currentFlavor,
   isActive = true,
   isAutoPlay = false,
   scrollProgress,
@@ -43,57 +51,9 @@ export function ChocolateScrollExperience({
   const startOverscrollRef = useRef(0);
   const [displayFrame, setDisplayFrame] = useState(0);
 
-  const isBanana = currentFlavor.id === 'banana';
-
-  // Dynamic color palette based on active flavor and pouring tones
-  const THEME_COLORS: Record<
-    string,
-    { title: string; eyebrow: string; dot: string; body: string; notes: string }
-  > = {
-    banana: {
-      title: '#7A4A02', // Rich golden roasted banana / honeycomb amber
-      eyebrow: '#9C5E00',
-      dot: '#D69307', // Exact sampled golden banana drip
-      body: 'rgba(92, 54, 2, 0.92)',
-      notes: 'rgba(122, 74, 2, 0.85)',
-    },
-    chocolate: {
-      title: '#241005', // Deep Belgian dark chocolate
-      eyebrow: '#512A1C',
-      dot: '#512A1C',
-      body: 'rgba(57, 29, 18, 0.92)',
-      notes: 'rgba(81, 42, 28, 0.85)',
-    },
-    kiwi: {
-      title: '#0E4B22',
-      eyebrow: '#1B6A35',
-      dot: '#2E8B4C',
-      body: 'rgba(14, 75, 34, 0.92)',
-      notes: 'rgba(27, 106, 53, 0.85)',
-    },
-    blackberry: {
-      title: '#31074E',
-      eyebrow: '#52167D',
-      dot: '#6E1FB2',
-      body: 'rgba(49, 7, 78, 0.92)',
-      notes: 'rgba(82, 22, 125, 0.85)',
-    },
-    strawberry: {
-      title: '#64021A',
-      eyebrow: '#930728',
-      dot: '#B80E34',
-      body: 'rgba(100, 2, 26, 0.92)',
-      notes: 'rgba(147, 7, 40, 0.85)',
-    },
-  };
-
-  const theme = THEME_COLORS[currentFlavor.id] || THEME_COLORS.chocolate;
-
   const getFrameUrl = (index: number) => {
     const numStr = String(index).padStart(3, '0');
-    return isBanana
-      ? `/frames/banana/Chocolate_pouring_over_ice_cream_0916d677_1080p_${numStr}.png`
-      : `/frames/Chocolate_pouring_over_ice_cream_9be1800c_1080p_${numStr}.png`;
+    return `/frames/Chocolate_pouring_over_ice_cream_9be1800c_1080p_${numStr}.png`;
   };
 
   // Progressive frame loader: Load frame 0 instantly, then stream remaining frames when near viewport
@@ -164,7 +124,7 @@ export function ChocolateScrollExperience({
 
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [currentFlavor.id, isBanana]);
+  }, []);
 
   // Frame rendering on native 1920x1080 canvas
   const lastStateFrameRef = useRef(0);
@@ -195,10 +155,9 @@ export function ChocolateScrollExperience({
 
     // Optimized state update: Only update React state when crossing key thresholds to eliminate UI stutter
     const isBoundary = clampedIndex === 0 || clampedIndex >= TOTAL_FRAMES - 2;
-    const isBananaBloomBoundary = isBanana && clampedIndex >= 44;
     const isMajorStep = Math.abs(clampedIndex - lastStateFrameRef.current) >= 4;
 
-    if (isBoundary || isBananaBloomBoundary || isMajorStep) {
+    if (isBoundary || isMajorStep) {
       lastStateFrameRef.current = clampedIndex;
       setDisplayFrame(clampedIndex);
     }
@@ -468,9 +427,6 @@ export function ChocolateScrollExperience({
     };
   }, [isActive, onComplete, onRewindToStart]);
 
-  // Soft background transition to #F5F5F2 as Banana pour nears completion
-  const whiteBloom = isBanana && displayFrame > 44 ? Math.min(1, (displayFrame - 44) / 12) : 0;
-
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#D2D7D4] flex items-center justify-center select-none">
       {/* 100% Pure, Edge-to-Edge 1080p Canvas */}
@@ -479,15 +435,6 @@ export function ChocolateScrollExperience({
         width={1920}
         height={1080}
         className="w-full h-full object-cover pointer-events-none"
-      />
-
-      {/* Background White Bloom Transition layer towards Div 3 */}
-      <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-        style={{
-          backgroundColor: '#F5F5F2',
-          opacity: whiteBloom,
-        }}
       />
 
       {/* Side "About" Description: Large Editorial Typography (No box) */}
@@ -501,16 +448,16 @@ export function ChocolateScrollExperience({
           <div className="flex items-center gap-2 mb-2">
             <span
               className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: theme.dot }}
+              style={{ backgroundColor: THEME.dot }}
             />
             <span
               className="text-xs sm:text-sm font-bold uppercase tracking-widest"
               style={{
                 fontFamily: "'Fredoka', cursive, sans-serif",
-                color: theme.eyebrow,
+                color: THEME.eyebrow,
               }}
             >
-              {isBanana ? 'About The Honey Banana' : 'About The Pour'}
+              About The Pour
             </span>
           </div>
 
@@ -519,44 +466,30 @@ export function ChocolateScrollExperience({
             className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-4"
             style={{
               fontFamily: "'Fredoka', cursive, sans-serif",
-              color: theme.title,
+              color: THEME.title,
             }}
           >
-            {isBanana ? 'The Golden Honey Cascade' : 'The Molten Enrobing'}
+            The Molten Enrobing
           </h2>
 
           {/* Description in larger font */}
           <p
             className="text-base sm:text-lg lg:text-xl leading-relaxed font-medium mb-5"
-            style={{ color: theme.body }}
+            style={{ color: THEME.body }}
           >
-            {isBanana
-              ? 'Sun-ripened organic banana gelato layered with wild honeycomb crunch and drizzled with slow-poured wildflower amber honey, folded with double-churned cream.'
-              : 'Pure double-churned Hokkaido milk soft-serve slowly enrobed in molten Belgian dark chocolate. Warm at the moment of cascade, the fudge crystallization sets into a delicate crisp shell with a rich, velvety core.'}
+            Pure double-churned Hokkaido milk soft-serve slowly enrobed in molten Belgian dark chocolate. Warm at the moment of cascade, the fudge crystallization sets into a delicate crisp shell with a rich, velvety core.
           </p>
 
           {/* Subtle Craft Notes */}
           <div
             className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm font-semibold mb-2"
-            style={{ color: theme.notes }}
+            style={{ color: THEME.notes }}
           >
-            {isBanana ? (
-              <>
-                <span>Organic Cavendish Bananas</span>
-                <span>•</span>
-                <span>Wildflower Amber Honey</span>
-                <span>•</span>
-                <span>Honeycomb Crunch</span>
-              </>
-            ) : (
-              <>
-                <span>70% Single-Origin Cocoa</span>
-                <span>•</span>
-                <span>-7°C Hokkaido Churn</span>
-                <span>•</span>
-                <span>Crisp Molten Shell</span>
-              </>
-            )}
+            <span>70% Single-Origin Cocoa</span>
+            <span>•</span>
+            <span>-7°C Hokkaido Churn</span>
+            <span>•</span>
+            <span>Crisp Molten Shell</span>
           </div>
 
           {/* Clean Action Button when stopped at the final frame */}
