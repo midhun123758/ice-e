@@ -542,18 +542,18 @@ export function AutoFlavorShowcase({
             }}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 text-xs text-white cursor-pointer shadow-lg hover:scale-105 transition-all group"
           >
-            <span className="font-medium tracking-wider uppercase text-[11px]">Explore Camerry Story</span>
+            <span className="font-medium tracking-wider uppercase text-[11px]">Explore ICE - E Story</span>
             <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform animate-bounce" />
           </button>
         </div>
       </section>
 
       {/* ========================================================
-          SECTION 4: CAMERRY HERITAGE STORY (#heritage)
+          SECTION 4: ICE - E HERITAGE STORY (#heritage)
           Dedicated full-screen 100vh section!
           Shares the exact same vibrant flavor background color.
           Left Column: The active flavor bowl image docks prominently!
-          Right Column: Complete Camerry heritage narrative.
+          Right Column: Complete ICE - E heritage narrative.
           NEVER EMPTY — ALWAYS 100% POPULATED AND GORGEOUS!
           ======================================================== */}
       <section
@@ -595,13 +595,13 @@ export function AutoFlavorShowcase({
           </div>
         </div>
 
-        {/* Right Column: Camerry Heritage Story Description */}
+        {/* Right Column: ICE - E Heritage Story Description */}
         <div className="w-full lg:w-1/2 h-full flex items-center justify-center lg:justify-start pointer-events-auto z-10">
           <div className="max-w-xl flex flex-col items-center lg:items-start text-center lg:text-left select-text">
             {/* Decorative Brand Eyebrow Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 mb-6 text-xs sm:text-sm font-semibold tracking-widest uppercase text-white shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>The Camerry Heritage • Since 1990</span>
+              <span>The ICE - E Heritage • Artisanal Confectionery</span>
             </div>
 
             {/* Paragraph 1 */}
@@ -609,7 +609,7 @@ export function AutoFlavorShowcase({
               className="text-base sm:text-lg lg:text-[1.18rem] text-white font-normal leading-relaxed sm:leading-loose tracking-wide mb-6 drop-shadow-sm"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
-              Once upon a time, a bunch of ice cream fanatics, all of them cousins, came together to create a world full of creamy, delicious and real ice creams. They tinkered with fruits, milk and nuts, adding a fruit here and a nut there to bring to you a range of creamy goodness and exotic flavours. This new world created by these ice-cream chefs is the magical land of Camerry Ice creams!
+              Born from an obsession with cold science and sensory contrast, ICE - E redefines small-batch artisanal frozen confectionery. Every scoop is an exploration of pure textures, natural fruits, and molten Belgian drizzles crafted by confectionery artisans.
             </p>
 
             {/* Paragraph 2 */}
@@ -617,7 +617,7 @@ export function AutoFlavorShowcase({
               className="text-sm sm:text-base lg:text-[1.05rem] text-white/90 font-normal leading-relaxed sm:leading-loose tracking-wide mb-8 drop-shadow-sm"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
-              Camerry Ice Cream owes its origins to the Cousins Group, created in 1990 by five closeknit families. Well-known throughout Kerala and in the growing markets of Tamil Nadu and Karnataka for unrivaled freshness and world-class quality.
+              ICE - E owes its signature smoothness to slow micro-batch churning, blending organic whole milk with real botanical extracts and crisp fruit wheels. Revered by dessert connoisseurs for unrivaled freshness, delicate crystallization-free texture, and world-class culinary craft.
             </p>
 
             {/* Action Button to Next Section (The Crunch Experience) */}
