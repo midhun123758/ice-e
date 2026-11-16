@@ -34,19 +34,6 @@ const REF_SLIDES: RefFlavorSlide[] = [
     ],
   },
   {
-    id: 'berries',
-    word: 'BERRIES',
-    title: 'Blue Bliss',
-    desc: 'A smooth and refreshing blueberry ice cream made with ripe berries. Perfectly refreshing for any time of day.',
-    palette: ['#25003D', '#7A16C7'],
-    bowlImage: '/images/ref/bowl-1.png',
-    ingredients: [
-      { src: '/images/ref/ing-1-1.png', top: '18%', left: '10%', width: '14%', idleDelay: 0 },
-      { src: '/images/ref/ing-1-2.png', top: '16%', left: '79%', width: '14.5%', idleDelay: 0.35 },
-      { src: '/images/ref/ing-1-3.png', top: '71%', left: '77%', width: '13%', idleDelay: 0.7 },
-    ],
-  },
-  {
     id: 'banana',
     word: 'BANANA',
     title: 'Banana Crush',
@@ -93,7 +80,7 @@ export function AutoFlavorShowcase({
   onGoToAbout,
   onBackToTop,
 }: AutoFlavorShowcaseProps) {
-  const [currentIdx, setCurrentIdx] = useState(3); // Default Kiwi
+  const [currentIdx, setCurrentIdx] = useState(2); // Default Kiwi
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const [isDesktop, setIsDesktop] = useState(
@@ -107,8 +94,8 @@ export function AutoFlavorShowcase({
 
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const activeSlide = REF_SLIDES[currentIdx];
   const total = REF_SLIDES.length;
+  const activeSlide = REF_SLIDES[currentIdx] || REF_SLIDES[0];
 
   useEffect(() => {
     const onResize = () => {
