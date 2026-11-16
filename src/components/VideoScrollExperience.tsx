@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Sparkles, ArrowDown, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface VideoScrollExperienceProps {
@@ -69,59 +68,35 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
       <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-b from-black/40 via-transparent to-black/65" />
 
       {/* ========================================================
-          THE MIDNIGHT CRUNCH CARD (COVERS GEMINI LOGO)
-          Positioned in the bottom-right corner to cleanly hide
-          the Gemini watermark while presenting "The Midnight Crunch"
-          and its confectionery description!
-          Center is kept completely clear for unobstructed viewing!
+          THE MIDNIGHT CRUNCH TYPOGRAPHY (COVERS GEMINI LOGO)
+          Pure floating words with Fredoka brand font — NO box,
+          positioned over the bottom-right corner to cleanly
+          conceal the Gemini watermark while keeping the view clear!
           ======================================================== */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.2 }}
-        className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-30 max-w-xs sm:max-w-sm pointer-events-auto"
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="absolute bottom-5 right-5 sm:bottom-8 sm:right-8 z-30 max-w-xs sm:max-w-md text-right pointer-events-auto select-text"
       >
-        <div className="bg-black/85 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col items-start text-left">
-          {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 backdrop-blur-md border border-amber-400/30 mb-2.5 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-amber-200">
-            <Sparkles className="w-3 h-3 text-amber-400" />
-            <span>Artisanal Bar</span>
-          </div>
+        {/* Soft, natural shadow layer behind words to completely obscure the Gemini watermark */}
+        <div className="absolute -inset-8 bg-black/60 blur-2xl rounded-full pointer-events-none -z-10" />
 
-          {/* Title */}
-          <h3
-            className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-tight mb-2 drop-shadow-md"
-            style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
-          >
-            The Midnight Crunch
-          </h3>
+        {/* Title in iconic Fredoka bold font */}
+        <h3
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-2 drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]"
+          style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+        >
+          The Midnight Crunch
+        </h3>
 
-          {/* Explanation / Description */}
-          <p className="text-xs sm:text-[13px] text-white/85 font-normal leading-relaxed mb-4">
-            Slow-churned sweet cream enrobed in a tempered shell of 72% Belgian dark cocoa, explosive roasted hazelnut shards, and molten caramel rivers.
-          </p>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 w-full pt-1">
-            <button
-              onClick={replay}
-              aria-label="Replay Video"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
-              title="Replay Video"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Replay</span>
-            </button>
-
-            <button
-              onClick={onGoToAbout}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-[#120803] hover:bg-white/90 text-xs font-semibold transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-md ml-auto group"
-            >
-              <span>Learn About ICE E</span>
-              <ArrowDown className="w-3 h-3 group-hover:translate-y-0.5 transition-transform" />
-            </button>
-          </div>
-        </div>
+        {/* Narrative Description in Fredoka font */}
+        <p
+          className="text-xs sm:text-sm lg:text-[15px] text-white/95 font-normal leading-relaxed sm:leading-relaxed drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]"
+          style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+        >
+          Slow-churned sweet cream enrobed in a tempered shell of 72% Belgian dark cocoa, explosive roasted hazelnut shards, and molten caramel rivers.
+        </p>
       </motion.div>
     </section>
   );
