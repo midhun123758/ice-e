@@ -403,62 +403,112 @@ export function App() {
       {/* ========================================================
           GLOBAL PERSISTENT FLOATING NAVIGATION BAR
           ======================================================== */}
-      <header className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center pointer-events-auto">
-        <nav className="bg-black/60 backdrop-blur-xl rounded-full px-2 py-1.5 border border-white/20 flex items-center gap-1 shadow-2xl">
-          {[
-            { name: 'HOME', target: '#home' },
-            { name: 'THE POUR', target: '#the-pour' },
-            { name: 'FLAVORS', target: '#flavors' },
-            { name: 'HERITAGE', target: '#heritage' },
-            { name: 'CRUNCH', target: '#experience' },
-            { name: 'ABOUT', target: '#about' },
-          ].map((item) => {
-            const isActive = activeNav === item.name;
-            return (
+      <header className="fixed top-4 sm:top-5 left-0 right-0 z-50 px-4 sm:px-8 lg:px-12 pointer-events-none">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
+          {/* Company Logo on the Left Side */}
+          <div className="pointer-events-auto">
+            <button
+              onClick={() => {
+                setActiveNav('HOME');
+                playChime();
+                scrollToTarget('#home');
+              }}
+              className="group flex items-center gap-2.5 bg-black/65 hover:bg-black/85 backdrop-blur-xl border border-white/20 px-3.5 sm:px-4 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+              title="ICE - E Artisanal Confectionery"
+            >
+              {/* Logo Emblem Icon */}
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-500/30 group-hover:rotate-12 transition-transform duration-300">
+                <span className="text-sm sm:text-base select-none">🍨</span>
+              </div>
+
+              {/* Logo Typography in Fredoka Font */}
+              <div className="flex flex-col text-left">
+                <span
+                  className="text-base sm:text-lg font-black tracking-wider text-white leading-none group-hover:text-amber-300 transition-colors"
+                  style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+                >
+                  ICE <span className="text-amber-400 font-black">•</span> E
+                </span>
+                <span className="text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-white/60 leading-none mt-0.5">
+                  Artisanal Craft
+                </span>
+              </div>
+            </button>
+          </div>
+
+          {/* Navigation Links in Center */}
+          <nav className="pointer-events-auto bg-black/60 backdrop-blur-xl rounded-full px-2 py-1.5 border border-white/20 hidden md:flex items-center gap-1 shadow-2xl">
+            {[
+              { name: 'HOME', target: '#home' },
+              { name: 'THE POUR', target: '#the-pour' },
+              { name: 'FLAVORS', target: '#flavors' },
+              { name: 'HERITAGE', target: '#heritage' },
+              { name: 'CRUNCH', target: '#experience' },
+              { name: 'ABOUT', target: '#about' },
+            ].map((item) => {
+              const isActive = activeNav === item.name;
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => {
+                    setActiveNav(item.name);
+                    playChime();
+                    scrollToTarget(item.target);
+                  }}
+                  className={`px-3.5 sm:px-5 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? 'bg-white text-stone-900 shadow-md font-bold'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  {item.name}
+                </button>
+              );
+            })}
+
+            <div className="w-[1px] h-4 bg-white/20 mx-1" />
+
+            {/* In-Nav Auto Tour Controller */}
+            <button
+              onClick={toggleAutoPlay}
+              className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all duration-300 cursor-pointer ${
+                isAutoPlay
+                  ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-amber-500 text-white shadow-md shadow-amber-500/30'
+                  : 'bg-white/15 hover:bg-white/25 text-white'
+              }`}
+              title={isAutoPlay ? 'Pause Auto Tour' : 'Start Auto Tour'}
+            >
+              {isAutoPlay ? (
+                <>
+                  <Pause className="w-3.5 h-3.5 fill-white" />
+                  <span className="hidden sm:inline">Tour Active</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <span className="hidden sm:inline">Auto Play</span>
+                </>
+              )}
+            </button>
+          </nav>
+
+          {/* Right Spacer & Mobile Action */}
+          <div className="pointer-events-auto flex items-center gap-2">
+            <div className="md:hidden">
               <button
-                key={item.name}
-                onClick={() => {
-                  setActiveNav(item.name);
-                  playChime();
-                  scrollToTarget(item.target);
-                }}
-                className={`px-3.5 sm:px-5 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? 'bg-white text-stone-900 shadow-md font-bold'
-                    : 'text-white/80 hover:text-white'
+                onClick={toggleAutoPlay}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all duration-300 cursor-pointer bg-black/60 backdrop-blur-xl border border-white/20 ${
+                  isAutoPlay ? 'text-amber-400' : 'text-white'
                 }`}
               >
-                {item.name}
+                {isAutoPlay ? <Pause className="w-3.5 h-3.5 fill-amber-400" /> : <Play className="w-3.5 h-3.5 fill-white" />}
               </button>
-            );
-          })}
-
-          <div className="w-[1px] h-4 bg-white/20 mx-1" />
-
-          {/* In-Nav Auto Tour Controller */}
-          <button
-            onClick={toggleAutoPlay}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all duration-300 cursor-pointer ${
-              isAutoPlay
-                ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-amber-500 text-white shadow-md shadow-amber-500/30'
-                : 'bg-white/15 hover:bg-white/25 text-white'
-            }`}
-            title={isAutoPlay ? 'Pause Auto Tour' : 'Start Auto Tour'}
-          >
-            {isAutoPlay ? (
-              <>
-                <Pause className="w-3.5 h-3.5 fill-white" />
-                <span className="hidden sm:inline">Tour Active</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span className="hidden sm:inline">Auto Play</span>
-              </>
-            )}
-          </button>
-        </nav>
+            </div>
+            {/* Desktop balancing invisible block so center nav stays centered */}
+            <div className="hidden lg:block w-[140px]" />
+          </div>
+        </div>
       </header>
 
       {/* ========================================================
