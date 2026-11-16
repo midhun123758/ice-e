@@ -405,7 +405,7 @@ export function App() {
           ======================================================== */}
       <header className="fixed top-4 sm:top-5 left-0 right-0 z-50 px-4 sm:px-8 lg:px-12 pointer-events-none">
         <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
-          {/* Company Logo on the Left Side */}
+          {/* Company Logo on the Left Side - Only the name without borders */}
           <div className="pointer-events-auto">
             <button
               onClick={() => {
@@ -413,26 +413,15 @@ export function App() {
                 playChime();
                 scrollToTarget('#home');
               }}
-              className="group flex items-center gap-2.5 bg-black/65 hover:bg-black/85 backdrop-blur-xl border border-white/20 px-3.5 sm:px-4 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-              title="ICE - E Artisanal Confectionery"
+              className="group flex items-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 py-1"
+              title="ICE - E"
             >
-              {/* Logo Emblem Icon */}
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-500/30 group-hover:rotate-12 transition-transform duration-300">
-                <span className="text-sm sm:text-base select-none">🍨</span>
-              </div>
-
-              {/* Logo Typography in Fredoka Font */}
-              <div className="flex flex-col text-left">
-                <span
-                  className="text-base sm:text-lg font-black tracking-wider text-white leading-none group-hover:text-amber-300 transition-colors"
-                  style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
-                >
-                  ICE <span className="text-amber-400 font-black">•</span> E
-                </span>
-                <span className="text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-white/60 leading-none mt-0.5">
-                  Artisanal Craft
-                </span>
-              </div>
+              <span
+                className="text-2xl sm:text-3xl font-black tracking-wider text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.75)] group-hover:text-amber-300 transition-colors select-none"
+                style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+              >
+                ICE <span className="text-amber-400 font-black">•</span> E
+              </span>
             </button>
           </div>
 
