@@ -484,9 +484,7 @@ export function AutoFlavorShowcase({
                 {activeSlide.title}
               </h2>
 
-              <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal drop-shadow-sm max-w-sm">
-                {activeSlide.desc}
-              </p>
+              
             </motion.div>
           </AnimatePresence>
         </div>

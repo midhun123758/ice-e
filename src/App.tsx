@@ -576,11 +576,9 @@ export function App() {
                 {currentFlavor.name}
               </h1>
 
-              <p className="text-xs sm:text-sm text-white/90 max-w-xl mx-auto leading-relaxed font-normal drop-shadow-sm px-4">
-                {currentFlavor.description}
-              </p>
+              
 
-              <div className="flex items-center gap-3 mt-3">
+              <div className="flex items-center gap-3 mt-1">
                 <button
                   onClick={() => scrollToTarget('#flavors')}
                   className="text-white underline underline-offset-4 text-xs sm:text-sm font-medium hover:text-white/80 transition-colors drop-shadow-sm cursor-pointer"
