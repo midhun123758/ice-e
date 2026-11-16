@@ -1,0 +1,508 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Sparkles, ArrowDown } from 'lucide-react';
+
+interface ChocolateScrollExperienceProps {
+  currentFlavor: {
+    id: string;
+    name: string;
+    color: string;
+    gradientStops: [string, string];
+    notes: string[];
+    description: string;
+  };
+  isActive?: boolean;
+  isAutoPlay?: boolean;
+  scrollProgress?: number;
+  onComplete?: () => void;
+  onRewindToStart?: () => void;
+}
+
+// 58 High-Resolution Lossless PNG Frames (000 to 057)
+const TOTAL_FRAMES = 58;
+
+export function ChocolateScrollExperience({
+  currentFlavor,
+  isActive = true,
+  isAutoPlay = false,
+  scrollProgress,
+  onComplete,
+  onRewindToStart,
+}: ChocolateScrollExperienceProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const currentFrameRef = useRef(0);
+  const velocityRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
+  const scrollDirectionRef = useRef(0);
+  const CRUISING_SPEED = 0.85; // Faster, ultra-responsive silky pour (~1.1s full pour)
+  const SCROLL_ACTIVE_TIMEOUT = 280; // Crisp active window for fluid continuous frame delivery
+  const lastDrawnFrameRef = useRef(-1);
+  const rafIdRef = useRef<number | null>(null);
+  const isCooldownRef = useRef(false);
+  const endOverscrollRef = useRef(0);
+  const startOverscrollRef = useRef(0);
+  const [displayFrame, setDisplayFrame] = useState(0);
+
+  const isBanana = currentFlavor.id === 'banana';
+
+  // Dynamic color palette based on active flavor and pouring tones
+  const THEME_COLORS: Record<
+    string,
+    { title: string; eyebrow: string; dot: string; body: string; notes: string }
+  > = {
+    banana: {
+      title: '#7A4A02', // Rich golden roasted banana / honeycomb amber
+      eyebrow: '#9C5E00',
+      dot: '#D69307', // Exact sampled golden banana drip
+      body: 'rgba(92, 54, 2, 0.92)',
+      notes: 'rgba(122, 74, 2, 0.85)',
+    },
+    chocolate: {
+      title: '#241005', // Deep Belgian dark chocolate
+      eyebrow: '#512A1C',
+      dot: '#512A1C',
+      body: 'rgba(57, 29, 18, 0.92)',
+      notes: 'rgba(81, 42, 28, 0.85)',
+    },
+    kiwi: {
+      title: '#0E4B22',
+      eyebrow: '#1B6A35',
+      dot: '#2E8B4C',
+      body: 'rgba(14, 75, 34, 0.92)',
+      notes: 'rgba(27, 106, 53, 0.85)',
+    },
+    blackberry: {
+      title: '#31074E',
+      eyebrow: '#52167D',
+      dot: '#6E1FB2',
+      body: 'rgba(49, 7, 78, 0.92)',
+      notes: 'rgba(82, 22, 125, 0.85)',
+    },
+    strawberry: {
+      title: '#64021A',
+      eyebrow: '#930728',
+      dot: '#B80E34',
+      body: 'rgba(100, 2, 26, 0.92)',
+      notes: 'rgba(147, 7, 40, 0.85)',
+    },
+  };
+
+  const theme = THEME_COLORS[currentFlavor.id] || THEME_COLORS.chocolate;
+
+  const getFrameUrl = (index: number) => {
+    const numStr = String(index).padStart(3, '0');
+    return isBanana
+      ? `/frames/banana/Chocolate_pouring_over_ice_cream_0916d677_1080p_${numStr}.png`
+      : `/frames/Chocolate_pouring_over_ice_cream_9be1800c_1080p_${numStr}.png`;
+  };
+
+  // Preload all 58 PNG frames whenever flavor changes (Banana vs Chocolate)
+  useEffect(() => {
+    const imgs: HTMLImageElement[] = [];
+    currentFrameRef.current = 0;
+    velocityRef.current = 0;
+    lastDrawnFrameRef.current = -1;
+
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.src = getFrameUrl(i);
+
+      img.onload = () => {
+        if (i === 0 && lastDrawnFrameRef.current === -1) {
+          renderFrame(0);
+        }
+      };
+
+      imgs.push(img);
+    }
+
+    imagesRef.current = imgs;
+
+    if (imgs[0]?.complete) {
+      renderFrame(0);
+    }
+  }, [currentFlavor.id, isBanana]);
+
+  // Frame rendering on native 1920x1080 canvas
+  const renderFrame = (frameIndex: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const clampedIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameIndex)));
+
+    // Avoid redundant repaints if already on this exact frame
+    if (clampedIndex === lastDrawnFrameRef.current) return;
+
+    let img = imagesRef.current[clampedIndex];
+
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      const fallbackImg = imagesRef.current[lastDrawnFrameRef.current >= 0 ? lastDrawnFrameRef.current : 0];
+      if (fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth > 0) {
+        img = fallbackImg;
+      } else {
+        return;
+      }
+    }
+
+    ctx.drawImage(img, 0, 0, 1920, 1080);
+    lastDrawnFrameRef.current = clampedIndex;
+    setDisplayFrame(clampedIndex);
+  };
+
+  // Reset or initialize frame when section becomes active
+  useEffect(() => {
+    if (isActive) {
+      isCooldownRef.current = true;
+      endOverscrollRef.current = 0;
+      startOverscrollRef.current = 0;
+      setTimeout(() => {
+        isCooldownRef.current = false;
+      }, 500);
+      renderFrame(currentFrameRef.current);
+    }
+  }, [isActive]);
+
+  // Synchronize frame with smooth page scroll progress if provided
+  useEffect(() => {
+    if (scrollProgress === undefined) return;
+    const targetFrame = Math.min(
+      TOTAL_FRAMES - 1,
+      Math.max(0, Math.round(scrollProgress * (TOTAL_FRAMES - 1)))
+    );
+    currentFrameRef.current = targetFrame;
+    renderFrame(targetFrame);
+  }, [scrollProgress]);
+
+  // Constant-speed, silky smooth liquid inertia animation loop (maintains exact same speed)
+  useEffect(() => {
+    const updateLoop = () => {
+      const now = performance.now();
+      const isActivelyScrolling = now - lastScrollTimeRef.current < SCROLL_ACTIVE_TIMEOUT;
+
+      if (isActivelyScrolling && scrollDirectionRef.current !== 0) {
+        // Accelerate smoothly to the constant cruising speed and maintain it
+        const targetVelocity = CRUISING_SPEED * scrollDirectionRef.current;
+        velocityRef.current += (targetVelocity - velocityRef.current) * 0.24;
+      } else {
+        // Softly ease into a velvety cushioned stop when scrolling ceases
+        velocityRef.current += (0 - velocityRef.current) * 0.16;
+      }
+
+      if (Math.abs(velocityRef.current) > 0.002) {
+        currentFrameRef.current += velocityRef.current;
+
+        if (currentFrameRef.current <= 0) {
+          currentFrameRef.current = 0;
+          velocityRef.current = 0;
+        } else if (currentFrameRef.current >= TOTAL_FRAMES - 1) {
+          // Firmly stop on the final completed pour image
+          currentFrameRef.current = TOTAL_FRAMES - 1;
+          velocityRef.current = 0;
+        }
+
+        renderFrame(currentFrameRef.current);
+      } else {
+        velocityRef.current = 0;
+      }
+
+      rafIdRef.current = requestAnimationFrame(updateLoop);
+    };
+
+    rafIdRef.current = requestAnimationFrame(updateLoop);
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, []);
+
+  // Auto-Play: Smoothly pours and cascades chocolate across 58 frames
+  useEffect(() => {
+    if (!isActive || !isAutoPlay) return;
+
+    let autoRaf: number;
+    let completeTimeout: ReturnType<typeof setTimeout>;
+    const speed = 0.58; // Fast, silky molten enrobe (~1.6 seconds)
+
+    const autoStep = () => {
+      if (currentFrameRef.current < TOTAL_FRAMES - 1) {
+        currentFrameRef.current = Math.min(TOTAL_FRAMES - 1, currentFrameRef.current + speed);
+        renderFrame(currentFrameRef.current);
+        autoRaf = requestAnimationFrame(autoStep);
+      } else {
+        // Molten enrobing completed! Brief pause to admire the shell, then advance
+        completeTimeout = setTimeout(() => {
+          onComplete?.();
+        }, 700);
+      }
+    };
+
+    // Small initial delay so card modal settles into view before pouring begins
+    const startDelay = setTimeout(() => {
+      autoRaf = requestAnimationFrame(autoStep);
+    }, 300);
+
+    return () => {
+      clearTimeout(startDelay);
+      clearTimeout(completeTimeout);
+      if (autoRaf) cancelAnimationFrame(autoRaf);
+    };
+  }, [isActive, isAutoPlay, onComplete]);
+
+  // Wheel and Touch listeners: Active when Section 2 is locked/active on screen
+  useEffect(() => {
+    if (!isActive) return;
+
+    let touchStartY = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (isCooldownRef.current) return;
+
+      const current = currentFrameRef.current;
+
+      if (e.deltaY > 0) {
+        // Scrolling DOWN: Advance the molten pouring animation
+        startOverscrollRef.current = 0;
+
+        if (current < TOTAL_FRAMES - 1) {
+          scrollDirectionRef.current = 1;
+          lastScrollTimeRef.current = performance.now();
+          currentFrameRef.current = Math.min(
+            TOTAL_FRAMES - 1,
+            currentFrameRef.current + Math.min(2.0, Math.max(0.4, Math.abs(e.deltaY) * 0.015))
+          );
+          renderFrame(currentFrameRef.current);
+        } else {
+          // Firmly stop on the final image! Do not scroll away.
+          currentFrameRef.current = TOTAL_FRAMES - 1;
+          velocityRef.current = 0;
+          renderFrame(TOTAL_FRAMES - 1);
+
+          // Deliberate extra downward scrolling continues to Flavors
+          endOverscrollRef.current += 1;
+          if (endOverscrollRef.current >= 4) {
+            isCooldownRef.current = true;
+            onComplete?.();
+            setTimeout(() => {
+              isCooldownRef.current = false;
+              endOverscrollRef.current = 0;
+            }, 800);
+          }
+        }
+      } else if (e.deltaY < 0) {
+        // Scrolling UP: Rewind/unpour the chocolate
+        endOverscrollRef.current = 0;
+
+        if (current > 0.4) {
+          scrollDirectionRef.current = -1;
+          lastScrollTimeRef.current = performance.now();
+          currentFrameRef.current = Math.max(
+            0,
+            currentFrameRef.current - Math.min(2.0, Math.max(0.4, Math.abs(e.deltaY) * 0.015))
+          );
+          renderFrame(currentFrameRef.current);
+        } else {
+          // Firmly stop at frame 0
+          currentFrameRef.current = 0;
+          velocityRef.current = 0;
+          renderFrame(0);
+
+          startOverscrollRef.current += 1;
+          if (startOverscrollRef.current >= 4) {
+            isCooldownRef.current = true;
+            onRewindToStart?.();
+            setTimeout(() => {
+              isCooldownRef.current = false;
+              startOverscrollRef.current = 0;
+            }, 800);
+          }
+        }
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (isCooldownRef.current) return;
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY - currentY;
+      touchStartY = currentY;
+
+      const current = currentFrameRef.current;
+
+      if (deltaY > 2) {
+        startOverscrollRef.current = 0;
+        if (current < TOTAL_FRAMES - 1) {
+          scrollDirectionRef.current = 1;
+          lastScrollTimeRef.current = performance.now();
+          currentFrameRef.current = Math.min(
+            TOTAL_FRAMES - 1,
+            currentFrameRef.current + Math.min(2.2, deltaY * 0.08)
+          );
+          renderFrame(currentFrameRef.current);
+        } else {
+          // Firmly stop on the final image
+          currentFrameRef.current = TOTAL_FRAMES - 1;
+          velocityRef.current = 0;
+          renderFrame(TOTAL_FRAMES - 1);
+
+          endOverscrollRef.current += 1;
+          if (endOverscrollRef.current >= 4) {
+            isCooldownRef.current = true;
+            onComplete?.();
+            setTimeout(() => {
+              isCooldownRef.current = false;
+              endOverscrollRef.current = 0;
+            }, 800);
+          }
+        }
+      } else if (deltaY < -2) {
+        endOverscrollRef.current = 0;
+        if (current > 0.4) {
+          scrollDirectionRef.current = -1;
+          lastScrollTimeRef.current = performance.now();
+          currentFrameRef.current = Math.max(
+            0,
+            currentFrameRef.current - Math.min(2.2, Math.abs(deltaY) * 0.08)
+          );
+          renderFrame(currentFrameRef.current);
+        } else {
+          currentFrameRef.current = 0;
+          velocityRef.current = 0;
+          renderFrame(0);
+
+          startOverscrollRef.current += 1;
+          if (startOverscrollRef.current >= 4) {
+            isCooldownRef.current = true;
+            onRewindToStart?.();
+            setTimeout(() => {
+              isCooldownRef.current = false;
+              startOverscrollRef.current = 0;
+            }, 800);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isActive, onComplete, onRewindToStart]);
+
+  // Soft background transition to #F5F5F2 as Banana pour nears completion
+  const whiteBloom = isBanana && displayFrame > 44 ? Math.min(1, (displayFrame - 44) / 12) : 0;
+
+  return (
+    <div className="relative w-full h-full overflow-hidden bg-[#D2D7D4] flex items-center justify-center select-none">
+      {/* 100% Pure, Edge-to-Edge 1080p Canvas */}
+      <canvas
+        ref={canvasRef}
+        width={1920}
+        height={1080}
+        className="w-full h-full object-cover pointer-events-none"
+      />
+
+      {/* Background White Bloom Transition layer towards Div 3 */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          backgroundColor: '#F5F5F2',
+          opacity: whiteBloom,
+        }}
+      />
+
+      {/* Side "About" Description: Large Editorial Typography (No box) */}
+      <aside
+        className={`absolute left-8 sm:left-14 lg:left-24 top-1/2 -translate-y-1/2 z-20 max-w-md lg:max-w-lg pointer-events-none transition-all duration-700 ease-out ${
+          isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+        }`}
+      >
+        <div className="flex flex-col items-start">
+          {/* Eyebrow Tag */}
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: theme.dot }}
+            />
+            <span
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest"
+              style={{
+                fontFamily: "'Fredoka', cursive, sans-serif",
+                color: theme.eyebrow,
+              }}
+            >
+              {isBanana ? 'About The Honey Banana' : 'About The Pour'}
+            </span>
+          </div>
+
+          {/* Large Title in Fredoka Bold Font */}
+          <h2
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-4"
+            style={{
+              fontFamily: "'Fredoka', cursive, sans-serif",
+              color: theme.title,
+            }}
+          >
+            {isBanana ? 'The Golden Honey Cascade' : 'The Molten Enrobing'}
+          </h2>
+
+          {/* Description in larger font */}
+          <p
+            className="text-base sm:text-lg lg:text-xl leading-relaxed font-medium mb-5"
+            style={{ color: theme.body }}
+          >
+            {isBanana
+              ? 'Sun-ripened organic banana gelato layered with wild honeycomb crunch and drizzled with slow-poured wildflower amber honey, folded with double-churned cream.'
+              : 'Pure double-churned Hokkaido milk soft-serve slowly enrobed in molten Belgian dark chocolate. Warm at the moment of cascade, the fudge crystallization sets into a delicate crisp shell with a rich, velvety core.'}
+          </p>
+
+          {/* Subtle Craft Notes */}
+          <div
+            className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm font-semibold mb-2"
+            style={{ color: theme.notes }}
+          >
+            {isBanana ? (
+              <>
+                <span>Organic Cavendish Bananas</span>
+                <span>•</span>
+                <span>Wildflower Amber Honey</span>
+                <span>•</span>
+                <span>Honeycomb Crunch</span>
+              </>
+            ) : (
+              <>
+                <span>70% Single-Origin Cocoa</span>
+                <span>•</span>
+                <span>-7°C Hokkaido Churn</span>
+                <span>•</span>
+                <span>Crisp Molten Shell</span>
+              </>
+            )}
+          </div>
+
+          {/* Clean Action Button when stopped at the final frame */}
+          {displayFrame >= TOTAL_FRAMES - 2 && onComplete && (
+            <button
+              onClick={onComplete}
+              className="mt-4 pointer-events-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-stone-900 font-bold text-xs uppercase tracking-wider shadow-2xl hover:bg-white/90 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+            >
+              <span>Explore Flavors</span>
+              <ArrowDown className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}

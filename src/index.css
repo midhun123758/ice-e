@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: clip;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #120803;
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Fredoka', cursive, sans-serif;
+  }
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF5EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF9770;
+  border-radius: 9999px;
+  border: 2px solid #FFF5EC;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF70A6;
+}
+
+/* Candy Glows */
+.candy-glow-pink {
+  box-shadow: 0 10px 40px -10px rgba(255, 112, 166, 0.45);
+}
+
+.candy-glow-peach {
+  box-shadow: 0 10px 40px -10px rgba(255, 151, 112, 0.45);
+}
+
+.candy-glow-mint {
+  box-shadow: 0 10px 40px -10px rgba(112, 214, 188, 0.45);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Ice Cream Scoop Wobble Effect */
+@keyframes scoopWobble {
+  0% { transform: scale(1) translateY(0); }
+  25% { transform: scale(1.08, 0.92) translateY(-4px); }
+  50% { transform: scale(0.95, 1.05) translateY(-2px); }
+  75% { transform: scale(1.02, 0.98) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.animate-scoop-wobble {
+  animation: scoopWobble 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Waffle Grid Pattern for cones */
+.waffle-pattern {
+  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0, rgba(0,0,0,0.06) 2px, transparent 0, transparent 12px),
+                    repeating-linear-gradient(-45deg, rgba(0,0,0,0.06) 0, rgba(0,0,0,0.06) 2px, transparent 0, transparent 12px);
+}
