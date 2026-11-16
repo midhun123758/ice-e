@@ -147,15 +147,9 @@ export function AutoFlavorShowcase({
     window.addEventListener('scroll', onScroll, { passive: true });
     handleScroll();
 
-    const lenis = (window as any).__lenis;
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-    }
-
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', onScroll);
-      if (lenis) lenis.off('scroll', onScroll);
     };
   }, []);
 
@@ -381,6 +375,8 @@ export function AutoFlavorShowcase({
                     }}
                     src={ing.src}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.45)]"
                     draggable={false}
                   />
@@ -448,6 +444,8 @@ export function AutoFlavorShowcase({
                 <img
                   src={item.bowlImage}
                   alt={item.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-[320px] sm:w-[480px] lg:w-[600px] h-auto object-contain select-none drop-shadow-2xl"
                   draggable={false}
                 />

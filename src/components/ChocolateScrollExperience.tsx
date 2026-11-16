@@ -96,34 +96,78 @@ export function ChocolateScrollExperience({
       : `/frames/Chocolate_pouring_over_ice_cream_9be1800c_1080p_${numStr}.png`;
   };
 
-  // Preload all 58 PNG frames whenever flavor changes (Banana vs Chocolate)
+  // Progressive frame loader: Load frame 0 instantly, then stream remaining frames when near viewport
+  const isLoadedNearRef = useRef(false);
+
+  const preloadRemainingFrames = () => {
+    if (isLoadedNearRef.current) return;
+    isLoadedNearRef.current = true;
+
+    // Load in chunks to prevent network choking
+    let i = 1;
+    const loadNextBatch = () => {
+      const limit = Math.min(TOTAL_FRAMES, i + 8);
+      for (; i < limit; i++) {
+        if (!imagesRef.current[i]) {
+          const img = new Image();
+          img.src = getFrameUrl(i);
+          imagesRef.current[i] = img;
+        }
+      }
+      if (i < TOTAL_FRAMES) {
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(loadNextBatch);
+        } else {
+          setTimeout(loadNextBatch, 50);
+        }
+      }
+    };
+    loadNextBatch();
+  };
+
+  // Preload frame 0 immediately, and watch for viewport proximity
   useEffect(() => {
-    const imgs: HTMLImageElement[] = [];
     currentFrameRef.current = 0;
     velocityRef.current = 0;
     lastDrawnFrameRef.current = -1;
+    isLoadedNearRef.current = false;
 
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.src = getFrameUrl(i);
+    // Load initial poster frame 0
+    const poster = new Image();
+    poster.src = getFrameUrl(0);
+    poster.onload = () => {
+      if (lastDrawnFrameRef.current === -1) {
+        renderFrame(0);
+      }
+    };
+    imagesRef.current = [poster];
 
-      img.onload = () => {
-        if (i === 0 && lastDrawnFrameRef.current === -1) {
-          renderFrame(0);
-        }
-      };
-
-      imgs.push(img);
+    // If already active or scroll progress active, preload all
+    if (isActive || scrollProgress !== undefined) {
+      preloadRemainingFrames();
     }
 
-    imagesRef.current = imgs;
+    // IntersectionObserver to preload frames just before user scrolls into Section 2
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    if (imgs[0]?.complete) {
-      renderFrame(0);
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            preloadRemainingFrames();
+          }
+        });
+      },
+      { rootMargin: '600px 0px' }
+    );
+
+    observer.observe(canvas);
+    return () => observer.disconnect();
   }, [currentFlavor.id, isBanana]);
 
   // Frame rendering on native 1920x1080 canvas
+  const lastStateFrameRef = useRef(0);
   const renderFrame = (frameIndex: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -148,7 +192,16 @@ export function ChocolateScrollExperience({
 
     ctx.drawImage(img, 0, 0, 1920, 1080);
     lastDrawnFrameRef.current = clampedIndex;
-    setDisplayFrame(clampedIndex);
+
+    // Optimized state update: Only update React state when crossing key thresholds to eliminate UI stutter
+    const isBoundary = clampedIndex === 0 || clampedIndex >= TOTAL_FRAMES - 2;
+    const isBananaBloomBoundary = isBanana && clampedIndex >= 44;
+    const isMajorStep = Math.abs(clampedIndex - lastStateFrameRef.current) >= 4;
+
+    if (isBoundary || isBananaBloomBoundary || isMajorStep) {
+      lastStateFrameRef.current = clampedIndex;
+      setDisplayFrame(clampedIndex);
+    }
   };
 
   // Reset or initialize frame when section becomes active
@@ -175,18 +228,21 @@ export function ChocolateScrollExperience({
     renderFrame(targetFrame);
   }, [scrollProgress]);
 
-  // Constant-speed, silky smooth liquid inertia animation loop (maintains exact same speed)
-  useEffect(() => {
+  // On-demand silky smooth liquid inertia animation loop (stops when idle to eliminate CPU drain)
+  const isLoopRunningRef = useRef(false);
+
+  const startLoop = () => {
+    if (isLoopRunningRef.current) return;
+    isLoopRunningRef.current = true;
+
     const updateLoop = () => {
       const now = performance.now();
       const isActivelyScrolling = now - lastScrollTimeRef.current < SCROLL_ACTIVE_TIMEOUT;
 
       if (isActivelyScrolling && scrollDirectionRef.current !== 0) {
-        // Accelerate smoothly to the constant cruising speed and maintain it
         const targetVelocity = CRUISING_SPEED * scrollDirectionRef.current;
         velocityRef.current += (targetVelocity - velocityRef.current) * 0.24;
       } else {
-        // Softly ease into a velvety cushioned stop when scrolling ceases
         velocityRef.current += (0 - velocityRef.current) * 0.16;
       }
 
@@ -197,24 +253,34 @@ export function ChocolateScrollExperience({
           currentFrameRef.current = 0;
           velocityRef.current = 0;
         } else if (currentFrameRef.current >= TOTAL_FRAMES - 1) {
-          // Firmly stop on the final completed pour image
           currentFrameRef.current = TOTAL_FRAMES - 1;
           velocityRef.current = 0;
         }
 
         renderFrame(currentFrameRef.current);
+        rafIdRef.current = requestAnimationFrame(updateLoop);
       } else {
         velocityRef.current = 0;
+        isLoopRunningRef.current = false;
+        rafIdRef.current = null;
       }
-
-      rafIdRef.current = requestAnimationFrame(updateLoop);
     };
 
     rafIdRef.current = requestAnimationFrame(updateLoop);
+  };
+
+  useEffect(() => {
+    if (isActive) {
+      startLoop();
+    }
     return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      isLoopRunningRef.current = false;
     };
-  }, []);
+  }, [isActive]);
 
   // Auto-Play: Smoothly pours and cascades chocolate across 58 frames
   useEffect(() => {
@@ -258,6 +324,7 @@ export function ChocolateScrollExperience({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (isCooldownRef.current) return;
+      startLoop();
 
       const current = currentFrameRef.current;
 
@@ -328,6 +395,7 @@ export function ChocolateScrollExperience({
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       if (isCooldownRef.current) return;
+      startLoop();
 
       const currentY = e.touches[0].clientY;
       const deltaY = touchStartY - currentY;

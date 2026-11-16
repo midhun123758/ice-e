@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Footer } from './Footer';
 
@@ -11,10 +11,41 @@ export function AboutSection({
   onBackToTop,
   onNavigateSection,
 }: AboutSectionProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Lazy-load and play the background video only when section enters viewport
+  useEffect(() => {
+    const section = sectionRef.current;
+    const video = videoRef.current;
+    if (!section || !video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!video.src || video.src === '') {
+              video.src = '/videos/about-bg.mp4';
+              video.load();
+            }
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { rootMargin: '300px 0px', threshold: 0.1 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section
       id="about"
-      className="relative w-full min-h-screen select-none bg-white text-[#23120b] flex flex-col justify-between overflow-hidden"
+      ref={sectionRef}
+      className="relative w-full min-h-screen select-none bg-white text-[#23120b] flex flex-col justify-between overflow-hidden gpu-layer"
     >
       {/* ========================================================
           BACKGROUND VIDEO LAYER:
@@ -22,13 +53,13 @@ export function AboutSection({
           ======================================================== */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-white">
         <video
-          autoPlay
+          ref={videoRef}
           loop
           muted
           playsInline
-          className="w-full h-full object-cover pointer-events-none transition-opacity duration-700"
+          preload="none"
+          className="w-full h-full object-cover pointer-events-none transition-opacity duration-700 gpu-layer"
           style={{ opacity: 0.75 }}
-          src="/videos/about-bg.mp4"
         />
 
         {/* Soft, clean white scrim overlay to keep the typography crystal-clear */}

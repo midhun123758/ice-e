@@ -1,13 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ArrowDown, Play, Pause } from 'lucide-react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { playScoopPop, playChime } from './utils/audio';
-import { ChocolateScrollExperience } from './components/ChocolateScrollExperience';
-import { AutoFlavorShowcase } from './components/AutoFlavorShowcase';
-import { VideoScrollExperience } from './components/VideoScrollExperience';
-import { AboutSection } from './components/AboutSection';
+
+// Code-splitting: Lazy-load heavy below-the-fold sections for instant first paint
+const ChocolateScrollExperience = React.lazy(() =>
+  import('./components/ChocolateScrollExperience').then((m) => ({ default: m.ChocolateScrollExperience }))
+);
+const AutoFlavorShowcase = React.lazy(() =>
+  import('./components/AutoFlavorShowcase').then((m) => ({ default: m.AutoFlavorShowcase }))
+);
+const VideoScrollExperience = React.lazy(() =>
+  import('./components/VideoScrollExperience').then((m) => ({ default: m.VideoScrollExperience }))
+);
+const AboutSection = React.lazy(() =>
+  import('./components/AboutSection').then((m) => ({ default: m.AboutSection }))
+);
 
 interface FlavorItem {
   id: string;
@@ -135,54 +145,65 @@ export function App() {
     scrollToTarget('#home');
   };
 
-  // Continuous page scroll tracker & Section 2 full-screen locking director
+  // Continuous page scroll tracker & Section 2 full-screen locking director (rAF throttled)
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const winH = window.innerHeight;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          ticking = false;
+          const winH = window.innerHeight;
 
-      // 1. Check Section 2 locking condition: when it fully fixes the screen, lock it!
-      if (pourContainerRef.current && !isPourLockedRef.current && !isNavigatingRef.current) {
-        const rect = pourContainerRef.current.getBoundingClientRect();
-        if (Math.abs(rect.top) <= 35) {
-          if (lenisRef.current) {
-            lenisRef.current.scrollTo(pourContainerRef.current, { immediate: true });
-            lenisRef.current.stop();
+          // 1. Check Section 2 locking condition: when it fully fixes the screen, lock it!
+          if (pourContainerRef.current && !isPourLockedRef.current && !isNavigatingRef.current) {
+            const rect = pourContainerRef.current.getBoundingClientRect();
+            if (Math.abs(rect.top) <= 35) {
+              if (lenisRef.current) {
+                lenisRef.current.scrollTo(pourContainerRef.current, { immediate: true });
+                lenisRef.current.stop();
+              }
+              setIsPourLocked(true);
+              isPourLockedRef.current = true;
+              setActiveNav((prev) => (prev !== 'THE POUR' ? 'THE POUR' : prev));
+              return;
+            }
           }
-          setIsPourLocked(true);
-          isPourLockedRef.current = true;
-          setActiveNav('THE POUR');
-          return;
-        }
-      }
 
-      // Update top navbar active tab indicator based on natural scroll position
-      const scrollY = window.scrollY;
-      const pourEl = pourContainerRef.current;
-      const flavorsEl = document.getElementById('flavors');
-      const heritageEl = document.getElementById('heritage');
-      const experienceEl = document.getElementById('experience');
-      const aboutEl = document.getElementById('about');
+          // Update top navbar active tab indicator based on natural scroll position
+          const scrollY = window.scrollY;
+          const pourEl = pourContainerRef.current;
+          const flavorsEl = document.getElementById('flavors');
+          const heritageEl = document.getElementById('heritage');
+          const experienceEl = document.getElementById('experience');
+          const aboutEl = document.getElementById('about');
 
-      if (pourEl) {
-        const pourTop = pourEl.offsetTop;
-        const flavorsTop = flavorsEl ? flavorsEl.offsetTop : pourTop + winH;
-        const heritageTop = heritageEl ? heritageEl.offsetTop : flavorsTop + winH;
-        const experienceTop = experienceEl ? experienceEl.offsetTop : heritageTop + winH;
-        const aboutTop = aboutEl ? aboutEl.offsetTop : experienceTop + winH;
+          if (pourEl) {
+            const pourTop = pourEl.offsetTop;
+            const flavorsTop = flavorsEl ? flavorsEl.offsetTop : pourTop + winH;
+            const heritageTop = heritageEl ? heritageEl.offsetTop : flavorsTop + winH;
+            const experienceTop = experienceEl ? experienceEl.offsetTop : heritageTop + winH;
+            const aboutTop = aboutEl ? aboutEl.offsetTop : experienceTop + winH;
 
-        if (scrollY < pourTop - winH * 0.35) {
-          setActiveNav('HOME');
-        } else if (scrollY < flavorsTop - winH * 0.35) {
-          setActiveNav('THE POUR');
-        } else if (scrollY < heritageTop - winH * 0.35) {
-          setActiveNav('FLAVORS');
-        } else if (scrollY < experienceTop - winH * 0.35) {
-          setActiveNav('HERITAGE');
-        } else if (scrollY < aboutTop - winH * 0.35) {
-          setActiveNav('CRUNCH');
-        } else {
-          setActiveNav('ABOUT');
-        }
+            let nextNav = 'HOME';
+            if (scrollY < pourTop - winH * 0.35) {
+              nextNav = 'HOME';
+            } else if (scrollY < flavorsTop - winH * 0.35) {
+              nextNav = 'THE POUR';
+            } else if (scrollY < heritageTop - winH * 0.35) {
+              nextNav = 'FLAVORS';
+            } else if (scrollY < experienceTop - winH * 0.35) {
+              nextNav = 'HERITAGE';
+            } else if (scrollY < aboutTop - winH * 0.35) {
+              nextNav = 'CRUNCH';
+            } else {
+              nextNav = 'ABOUT';
+            }
+
+            setActiveNav((prev) => (prev !== nextNav ? nextNav : prev));
+          }
+        });
+        ticking = true;
       }
     };
 
@@ -624,7 +645,9 @@ export function App() {
                 exit="exit"
                 src={currentFlavor.image}
                 alt={currentFlavor.name}
-                className="hero-pie absolute inset-0 w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)]"
+                loading="eager"
+                decoding="sync"
+                className="hero-pie absolute inset-0 w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)] gpu-layer"
                 draggable={false}
               />
             </AnimatePresence>
@@ -661,63 +684,54 @@ export function App() {
       </section>
 
       {/* ========================================================
-          SECTION 2: THE POUR (INTERACTIVE VIDEO POURING EXPERIENCE)
-          Locks when fully fixing the screen so user scrolling scrubs
-          the molten chocolate pour; unlocks when complete to advance!
+          BELOW-THE-FOLD SECTIONS (LAZY LOADED VIA SUSPENSE)
+          Loads independently so the Hero paints instantly without lag
           ======================================================== */}
-      <section
-        id="the-pour"
-        ref={pourContainerRef}
-        className="relative w-full min-h-screen h-screen overflow-hidden bg-[#140803] flex items-center justify-center"
-      >
-        <ChocolateScrollExperience
-          currentFlavor={currentFlavor}
-          isActive={isPourLocked}
-          isAutoPlay={isAutoPlay}
-          onComplete={handlePourComplete}
-          onRewindToStart={handlePourRewind}
+      <Suspense fallback={<div className="w-full min-h-screen bg-[#140803]" />}>
+        {/* SECTION 2: THE POUR */}
+        <section
+          id="the-pour"
+          ref={pourContainerRef}
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-[#140803] flex items-center justify-center section-render-opt"
+        >
+          <ChocolateScrollExperience
+            currentFlavor={currentFlavor}
+            isActive={isPourLocked}
+            isAutoPlay={isAutoPlay}
+            onComplete={handlePourComplete}
+            onRewindToStart={handlePourRewind}
+          />
+        </section>
+
+        {/* SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY */}
+        <AutoFlavorShowcase
+          currentFlavorId={currentFlavor.id}
+          isActive={true}
+          onGoToHeritage={() => scrollToTarget('#heritage')}
+          onGoToFlavors={() => scrollToTarget('#flavors')}
+          onGoToExperience={() => scrollToTarget('#experience')}
+          onGoToAbout={() => scrollToTarget('#about')}
+          onBackToTop={() => scrollToTarget('#home')}
         />
-      </section>
 
-      {/* ========================================================
-          SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY
-          Two distinct sections with the ice cream bowl smoothly
-          traveling from center (Flavors) to the left side (Heritage)!
-          ======================================================== */}
-      <AutoFlavorShowcase
-        currentFlavorId={currentFlavor.id}
-        isActive={true}
-        onGoToHeritage={() => scrollToTarget('#heritage')}
-        onGoToFlavors={() => scrollToTarget('#flavors')}
-        onGoToExperience={() => scrollToTarget('#experience')}
-        onGoToAbout={() => scrollToTarget('#about')}
-        onBackToTop={() => scrollToTarget('#home')}
-      />
+        {/* SECTION 5: EXPLODING ICE CREAM BAR COMMERCIAL */}
+        <VideoScrollExperience
+          onGoToAbout={() => scrollToTarget('#about')}
+        />
 
-      {/* ========================================================
-          NEW SECTION 5: EXPLODING ICE CREAM BAR COMMERCIAL
-          Scroll-driven video scrubbing with GSAP ScrollTrigger
-          positioned directly at the bottom of the Heritage page!
-          ======================================================== */}
-      <VideoScrollExperience
-        onGoToAbout={() => scrollToTarget('#about')}
-      />
-
-      {/* ========================================================
-          SECTION 6: ABOUT ICE E & MINIMAL DARK FOOTER
-          Continuous continuation of the page top to bottom!
-          ======================================================== */}
-      <AboutSection
-        onBackToTop={() => scrollToTarget('#home')}
-        onNavigateSection={(sec) => {
-          if (sec === 0) scrollToTarget('#home');
-          else if (sec === 1) scrollToTarget('#the-pour');
-          else if (sec === 2) scrollToTarget('#flavors');
-          else if (sec === 3) scrollToTarget('#heritage');
-          else if (sec === 4) scrollToTarget('#experience');
-          else scrollToTarget('#about');
-        }}
-      />
+        {/* SECTION 6: ABOUT ICE E & MINIMAL DARK FOOTER */}
+        <AboutSection
+          onBackToTop={() => scrollToTarget('#home')}
+          onNavigateSection={(sec) => {
+            if (sec === 0) scrollToTarget('#home');
+            else if (sec === 1) scrollToTarget('#the-pour');
+            else if (sec === 2) scrollToTarget('#flavors');
+            else if (sec === 3) scrollToTarget('#heritage');
+            else if (sec === 4) scrollToTarget('#experience');
+            else scrollToTarget('#about');
+          }}
+        />
+      </Suspense>
     </div>
   );
 }

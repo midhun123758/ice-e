@@ -10,7 +10,9 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Automatically play as soon as the user scrolls into or arrives at this section!
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  // Automatically load & play only when arriving near the section (lazy video load)
   useEffect(() => {
     const section = sectionRef.current;
     const video = videoRef.current;
@@ -20,16 +22,19 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            if (!video.src || video.src === '') {
+              video.src = '/videos/ice-cream-bar-explode.mp4';
+              video.load();
+              setVideoLoaded(true);
+            }
             video.currentTime = 0;
-            video
-              .play()
-              .catch(() => {});
+            video.play().catch(() => {});
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0.4 }
+      { rootMargin: '200px 0px', threshold: 0.2 }
     );
 
     observer.observe(section);
@@ -47,17 +52,16 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
     <section
       id="experience"
       ref={sectionRef}
-      className="relative w-full min-h-screen h-screen overflow-hidden flex items-center justify-center bg-[#070302] select-none"
+      className="relative w-full min-h-screen h-screen overflow-hidden flex items-center justify-center bg-[#070302] select-none gpu-layer"
     >
-      {/* Background 1080p Exploding Ice Cream Video — Full clean view with NO text in center */}
+      {/* Background 1080p Exploding Ice Cream Video — Lazy loaded with preload="none" */}
       <video
         ref={videoRef}
-        src="/videos/ice-cream-bar-explode.mp4"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0 gpu-layer"
         playsInline
         muted
         loop
-        preload="auto"
+        preload="none"
       />
 
       {/* Atmospheric Vignette & Soft Gradient Overlays */}

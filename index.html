@@ -5,9 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍨</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ICE E — Artisanal Rotating Content Slider</title>
+    <!-- DNS prefetch & Preconnect for maximum loading speed -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Optimized Font Subset (Fredoka 600/700, Plus Jakarta Sans 400/600/700) with swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preload above-the-fold Hero Bowl image for immediate instantaneous render -->
+    <link rel="preload" as="image" href="/images/kiwi-bowl-circle.png" fetchpriority="high">
   </head>
   <body class="bg-stone-950 text-white antialiased overflow-x-hidden selection:bg-white selection:text-black font-sans">
     <div id="root"></div>
