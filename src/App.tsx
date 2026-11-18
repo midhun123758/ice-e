@@ -430,7 +430,6 @@ export function App() {
           <nav className="pointer-events-auto bg-black/60 backdrop-blur-xl rounded-full px-2 py-1.5 border border-white/20 hidden md:flex items-center gap-1 shadow-2xl">
             {[
               { name: 'HOME', target: '#home' },
-              { name: 'THE POUR', target: '#the-pour' },
               { name: 'FLAVORS', target: '#flavors' },
               { name: 'HERITAGE', target: '#heritage' },
               { name: 'CRUNCH', target: '#experience' },
@@ -505,7 +504,7 @@ export function App() {
           SECTION 1: HERO (NICOLAI PALMKVIST JUICE-PROJECT LIVE DEMO SCROLL)
           ======================================================== */}
       <JuiceScrollHero
-        onScrollToNext={() => scrollToTarget('#the-pour')}
+        onScrollToNext={() => scrollToTarget('#flavors')}
         onNavigateSection={(secId) => scrollToTarget(secId)}
       />
 
@@ -514,19 +513,7 @@ export function App() {
           Loads independently so the Hero paints instantly without lag
           ======================================================== */}
       <Suspense fallback={<div className="w-full min-h-screen bg-[#140803]" />}>
-        {/* SECTION 2: THE POUR (ONLY BELGIAN CHOCOLATE POURING) */}
-        <section
-          id="the-pour"
-          ref={pourContainerRef}
-          className="relative w-full min-h-screen h-screen overflow-hidden bg-[#140803] flex items-center justify-center section-render-opt"
-        >
-          <ChocolateScrollExperience
-            isActive={isPourLocked}
-            isAutoPlay={isAutoPlay}
-            onComplete={handlePourComplete}
-            onRewindToStart={handlePourRewind}
-          />
-        </section>
+        
 
         {/* SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY */}
         <AutoFlavorShowcase
