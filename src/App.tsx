@@ -504,7 +504,7 @@ export function App() {
           SECTION 1: HERO (NICOLAI PALMKVIST JUICE-PROJECT LIVE DEMO SCROLL)
           ======================================================== */}
       <JuiceScrollHero
-        onScrollToNext={() => scrollToTarget('#flavors')}
+        onScrollToNext={() => scrollToTarget('#the-pour')}
         onNavigateSection={(secId) => scrollToTarget(secId)}
       />
 
@@ -515,7 +515,21 @@ export function App() {
       <Suspense fallback={<div className="w-full min-h-screen bg-[#140803]" />}>
         
 
-        {/* SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY */}
+                {/* SECTION 2: THE POUR (ONLY BELGIAN CHOCOLATE POURING) */}
+        <section
+          id="the-pour"
+          ref={pourContainerRef}
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-[#D2D7D4] flex items-center justify-center section-render-opt"
+        >
+          <ChocolateScrollExperience
+            isActive={isPourLocked}
+            isAutoPlay={isAutoPlay}
+            onComplete={handlePourComplete}
+            onRewindToStart={handlePourRewind}
+          />
+        </section>
+
+{/* SECTIONS 3 & 4: FLAVORS SHOWCASE & CAMERRY HERITAGE STORY */}
         <AutoFlavorShowcase
           isActive={true}
           onGoToHeritage={() => scrollToTarget('#heritage')}
