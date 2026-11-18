@@ -472,11 +472,6 @@ export function AutoFlavorShowcase({
               animate="center"
               exit="exit"
             >
-              <div className="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/25 text-white text-[10px] sm:text-xs font-semibold tracking-wider uppercase shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                <span>Featured Flavor</span>
-              </div>
-
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-none mb-3 drop-shadow-md"
                 style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
@@ -513,38 +508,7 @@ export function AutoFlavorShowcase({
           </button>
         </div>
 
-        {/* Bottom-Center Dots & Scroll Down to Heritage Story */}
-        <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 will-change-transform pointer-events-auto transition-opacity duration-300"
-          style={{
-            opacity: Math.max(0, 1 - scrollProgress * 1.8),
-          }}
-        >
-          <div className="flex items-center gap-2.5 bg-black/30 backdrop-blur-md border border-white/15 px-3.5 py-1.5 rounded-full shadow-lg">
-            {REF_SLIDES.map((item, idx) => (
-              <button
-                key={item.id}
-                onClick={() => goToSlide(idx, idx > currentIdx ? 1 : -1)}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
-                  idx === currentIdx ? 'w-6 h-2 bg-white shadow-md' : 'w-2 h-2 bg-white/45 hover:bg-white/75'
-                }`}
-                title={item.title}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => {
-              playScoopPop();
-              onGoToHeritage?.();
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/20 text-xs text-white cursor-pointer shadow-lg hover:scale-105 transition-all group"
-          >
-            <span className="font-medium tracking-wider uppercase text-[11px]">Explore ICE - E Story</span>
-            <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform animate-bounce" />
-          </button>
-        </div>
-      </section>
+        </section>
 
       {/* ========================================================
           SECTION 4: ICE - E HERITAGE STORY (#heritage)
@@ -596,12 +560,6 @@ export function AutoFlavorShowcase({
         {/* Right Column: ICE - E Heritage Story Description */}
         <div className="w-full lg:w-1/2 h-full flex items-center justify-center lg:justify-start pointer-events-auto z-10">
           <div className="max-w-xl flex flex-col items-center lg:items-start text-center lg:text-left select-text">
-            {/* Decorative Brand Eyebrow Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 mb-6 text-xs sm:text-sm font-semibold tracking-widest uppercase text-white shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>The ICE - E Heritage • Artisanal Confectionery</span>
-            </div>
-
             {/* Paragraph 1 */}
             <p
               className="text-base sm:text-lg lg:text-[1.18rem] text-white font-normal leading-relaxed sm:leading-loose tracking-wide mb-6 drop-shadow-sm"
