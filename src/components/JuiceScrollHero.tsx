@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-// lucide icons removed for clean minimal design
 import { playScoopPop, playChime } from '../utils/audio';
 
 export interface JuiceSection {
@@ -192,10 +191,10 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
 
   const mainWrapperRef = useRef<HTMLDivElement>(null);
   const bgLayerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const bowlRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Function to perform the exact Nicolai Palmkvist GSAP animation
+  // Exact Nicolai Palmkvist fullpage vertical slide + GSAP scale animation
   const goToSlide = useCallback((newIndex: number) => {
     if (newIndex === activeIndexRef.current || isAnimatingRef.current) return;
     if (newIndex < 0 || newIndex >= SECTIONS.length) return;
@@ -206,12 +205,11 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
 
     const originEl = sectionRefs.current[originIdx];
     const destinationEl = sectionRefs.current[destinationIdx];
-    const destinationBowl = bowlRefs.current[destinationIdx];
     const toGradient = SECTIONS[destinationIdx].gradient;
 
     playScoopPop();
 
-    // 1. Change background gradient smoothly
+    // 1. Change background gradient smoothly (0.5s ease: none like template)
     if (bgLayerRef.current) {
       gsap.to(bgLayerRef.current, {
         backgroundImage: toGradient,
@@ -220,89 +218,86 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
       });
     }
 
-    // 2. Shrink leaving section (Nicolai's exact scale: 0.5, duration: 0.6s)
+    // 2. Shrink leaving section to scale: 0.5 (0.6s ease: power2.out like template)
     if (originEl) {
       gsap.to(originEl, {
         scale: 0.5,
-        opacity: 0,
         duration: 0.6,
         ease: 'power2.out',
-        onComplete: () => {
-          gsap.set(originEl, { display: 'none' });
-        },
       });
     }
 
-    // 3. Grow entering section (Nicolai's exact scale: 0.5 -> 1.0, duration: 0.6s)
-    if (destinationEl) {
-      gsap.set(destinationEl, { display: 'flex', scale: 0.5, opacity: 0 });
-      gsap.to(destinationEl, {
-        scale: 1,
-        opacity: 1,
-        duration: 0.6,
-        ease: 'power2.out',
+    // 3. Translate container vertically with Fullpage.js style physics (0.85s ease: power2.inOut)
+    if (containerRef.current) {
+      gsap.to(containerRef.current, {
+        y: `-${destinationIdx * 100}vh`,
+        duration: 0.85,
+        ease: 'power2.inOut',
         onComplete: () => {
           setActiveIndex(destinationIdx);
           isAnimatingRef.current = false;
         },
       });
+    }
 
-      // Subtle rotation spin on entering circular bowl
-      if (destinationBowl) {
-        gsap.fromTo(
-          destinationBowl,
-          { rotate: -35 },
-          { rotate: 0, duration: 0.75, ease: 'power2.out' }
-        );
-      }
-    } else {
-      setActiveIndex(destinationIdx);
-      isAnimatingRef.current = false;
+    // 4. Grow entering section to scale: 1 (0.6s ease: power2.out like template)
+    if (destinationEl) {
+      gsap.fromTo(
+        destinationEl,
+        { scale: 0.5 },
+        {
+          scale: 1,
+          duration: 0.7,
+          delay: 0.05,
+          ease: 'power2.out',
+        }
+      );
     }
   }, []);
 
-  // Initial GSAP setup
+  // Initial GSAP setup: Section 0 at scale 1; sections 1..3 at scale 0.5
   useEffect(() => {
-    // Set first slide active and all other slides hidden at scale: 0.5
     sectionRefs.current.forEach((el, idx) => {
       if (el) {
         if (idx === 0) {
-          gsap.set(el, { scale: 1, opacity: 1, display: 'flex' });
+          gsap.set(el, { scale: 1 });
         } else {
-          gsap.set(el, { scale: 0.5, opacity: 0, display: 'none' });
+          gsap.set(el, { scale: 0.5 });
         }
       }
     });
+
+    if (containerRef.current) {
+      gsap.set(containerRef.current, { y: '0vh' });
+    }
 
     if (bgLayerRef.current) {
       gsap.set(bgLayerRef.current, { backgroundImage: SECTIONS[0].gradient });
     }
   }, []);
 
-  // Wheel and touch controller: Advances flavors 1 by 1 while locked; unlocks after 4th flavor
+  // Wheel and touch controller: One-by-one transitions, unlocks after 4th flavor
   useEffect(() => {
     let lastWheelTime = 0;
 
     const handleWheel = (e: WheelEvent) => {
-      // Only process when hero is locked at the top of the page
       if (!isLocked) return;
 
       e.preventDefault();
       e.stopPropagation();
 
       const now = performance.now();
-      if (now - lastWheelTime < 550 || isAnimatingRef.current) return;
+      if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
 
       const currentIdx = activeIndexRef.current;
 
       if (e.deltaY > 15) {
         // Scrolling DOWN
         if (currentIdx < SECTIONS.length - 1) {
-          // Advance flavor 1 by 1: 0 -> 1 -> 2 -> 3
           lastWheelTime = now;
           goToSlide(currentIdx + 1);
         } else {
-          // On the 4th flavor! Downward scroll now unlocks and glides into Section 2
+          // 4th flavor reached! Next downward scroll unlocks into Section 2
           lastWheelTime = now;
           onUnlockAndNext?.();
         }
@@ -329,11 +324,10 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
 
       if (Math.abs(deltaY) > 30) {
         e.preventDefault();
-        if (now - lastWheelTime < 550 || isAnimatingRef.current) return;
+        if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
 
         const currentIdx = activeIndexRef.current;
         if (deltaY > 30) {
-          // Swipe UP (Scroll DOWN)
           if (currentIdx < SECTIONS.length - 1) {
             lastWheelTime = now;
             touchStartY = touchEndY;
@@ -343,7 +337,6 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
             onUnlockAndNext?.();
           }
         } else if (deltaY < -30) {
-          // Swipe DOWN (Scroll UP)
           if (currentIdx > 0) {
             lastWheelTime = now;
             touchStartY = touchEndY;
@@ -399,17 +392,22 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
       />
 
       {/* ========================================================
-          SECTIONS CONTAINER (#img-container)
+          VERTICAL FULLPAGE CONTAINER (#img-container)
+          Translates vertically by -100vh per section
           ======================================================== */}
       <div
+        ref={containerRef}
         id="img-container"
-        className="relative w-full h-full flex items-center justify-center z-10 overflow-hidden"
+        className="absolute top-0 left-0 w-full flex flex-col z-10 will-change-transform"
+        style={{
+          height: `${SECTIONS.length * 100}vh`,
+        }}
       >
         {SECTIONS.map((sec, idx) => (
           <div
             key={sec.id}
             ref={(el) => (sectionRefs.current[idx] = el)}
-            className="section absolute inset-0 w-full h-full flex items-center justify-center will-change-transform"
+            className="section relative w-full h-screen flex items-center justify-center will-change-transform select-none"
             style={{
               transformOrigin: 'center center',
             }}
@@ -441,11 +439,10 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
             </div>
 
             {/* ====================================================
-                CENTER CIRCULAR BOWL PRODUCT IMAGE (-BOWL-CIRCLE.PNG)
+                CENTER CIRCULAR BOWL PRODUCT IMAGE WITH CONTINUOUS SMOOTH 360° SPIN
                 ==================================================== */}
             <div className="relative z-20 flex items-center justify-center pointer-events-auto">
               <div
-                ref={(el) => (bowlRefs.current[idx] = el)}
                 onClick={() => goToSlide((idx + 1) % SECTIONS.length)}
                 className="group cursor-pointer will-change-transform transition-transform hover:scale-105 active:scale-95 duration-300"
                 title="Click to switch flavor"
@@ -496,7 +493,27 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
         ))}
       </div>
 
-      
+      {/* ========================================================
+          BOTTOM STATUS BAR HUD
+          ======================================================== */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 w-full pb-8 px-6 sm:px-12 flex items-end justify-between pointer-events-none">
+        <div className="flex flex-col items-start gap-1">
+          <span className="text-white/40 text-[10px] tracking-widest uppercase font-mono">
+            FLAVOR SELECTION
+          </span>
+          <div className="flex items-baseline gap-1.5 text-white font-bold text-xl sm:text-2xl font-mono">
+            <span>{currentSection.number}</span>
+            <span className="text-white/30 text-sm font-normal">/</span>
+            <span className="text-white/40 text-sm font-normal">04</span>
+          </div>
+          <span
+            className="text-white/80 text-xs sm:text-sm font-semibold tracking-wide drop-shadow-sm mt-0.5"
+            style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+          >
+            {currentSection.fullName}
+          </span>
+        </div>
+      </div>
     </section>
   );
 }
