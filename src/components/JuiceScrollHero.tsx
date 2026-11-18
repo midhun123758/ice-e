@@ -279,90 +279,100 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
     }
   }, []);
 
-  // Wheel and touch gesture controller
+  // Wheel and touch gesture controller: One-by-one flavor transitions, then scroll after 4th flavor
   useEffect(() => {
     let lastWheelTime = 0;
 
     const handleWheel = (e: WheelEvent) => {
-      const wrapper = mainWrapperRef.current;
-      if (!wrapper) return;
+      // Check if user is viewing the hero section (at top of page)
+      const scrollY = window.scrollY;
+      const isAtHero = scrollY <= 40;
 
-      const rect = wrapper.getBoundingClientRect();
-      // Only capture when user is in the hero section viewport
-      if (rect.top > 30 || rect.bottom < window.innerHeight * 0.5) return;
+      if (!isAtHero) return;
 
-      const now = Date.now();
-      if (now - lastWheelTime < 600 || isAnimatingRef.current) {
-        if (Math.abs(e.deltaY) > 8) {
+      const now = performance.now();
+      const currentIdx = activeIndexRef.current;
+
+      // Scrolling DOWN
+      if (e.deltaY > 12) {
+        if (currentIdx < SECTIONS.length - 1) {
+          // Locked in Hero: change flavors 1 by 1
           e.preventDefault();
-        }
-        return;
-      }
+          e.stopPropagation();
 
-      if (e.deltaY > 20) {
-        // Scrolling down
-        if (activeIndexRef.current < SECTIONS.length - 1) {
-          e.preventDefault();
+          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
+
           lastWheelTime = now;
-          goToSlide(activeIndexRef.current + 1);
+          goToSlide(currentIdx + 1);
         } else {
-          // Reached end of 4 slides: let it naturally scroll into the next section
+          // Reached the 4th flavor (index 3)! Next downward scroll unlocks page and glides to Section 2
+          if (now - lastWheelTime < 500) {
+            e.preventDefault();
+            return;
+          }
           onScrollToNext?.();
         }
-      } else if (e.deltaY < -20) {
-        // Scrolling up
-        if (activeIndexRef.current > 0) {
+      } else if (e.deltaY < -12) {
+        // Scrolling UP
+        if (currentIdx > 0 && scrollY <= 15) {
           e.preventDefault();
+          e.stopPropagation();
+
+          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
+
           lastWheelTime = now;
-          goToSlide(activeIndexRef.current - 1);
+          goToSlide(currentIdx - 1);
         }
       }
     };
 
+    let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartY.current = e.touches[0].clientY;
+      touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      const wrapper = mainWrapperRef.current;
-      if (!wrapper) return;
-      const rect = wrapper.getBoundingClientRect();
-      if (rect.top > 30 || rect.bottom < window.innerHeight * 0.5) return;
+      const scrollY = window.scrollY;
+      const isAtHero = scrollY <= 40;
+      if (!isAtHero) return;
 
       const touchEndY = e.touches[0].clientY;
-      const deltaY = touchStartY.current - touchEndY;
+      const deltaY = touchStartY - touchEndY;
+      const now = performance.now();
+      const currentIdx = activeIndexRef.current;
 
-      if (Math.abs(deltaY) > 35 && !isAnimatingRef.current) {
-        if (deltaY > 0) {
-          if (activeIndexRef.current < SECTIONS.length - 1) {
-            e.preventDefault();
-            goToSlide(activeIndexRef.current + 1);
-          } else {
-            onScrollToNext?.();
-          }
+      if (deltaY > 30) {
+        // Swipe UP -> Scroll DOWN
+        if (currentIdx < SECTIONS.length - 1) {
+          e.preventDefault();
+          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
+          lastWheelTime = now;
+          touchStartY = touchEndY;
+          goToSlide(currentIdx + 1);
         } else {
-          if (activeIndexRef.current > 0) {
-            e.preventDefault();
-            goToSlide(activeIndexRef.current - 1);
-          }
+          onScrollToNext?.();
         }
-        touchStartY.current = touchEndY;
+      } else if (deltaY < -30) {
+        // Swipe DOWN -> Scroll UP
+        if (currentIdx > 0 && scrollY <= 15) {
+          e.preventDefault();
+          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
+          lastWheelTime = now;
+          touchStartY = touchEndY;
+          goToSlide(currentIdx - 1);
+        }
       }
     };
 
-    const wrapper = mainWrapperRef.current;
-    if (wrapper) {
-      wrapper.addEventListener('wheel', handleWheel, { passive: false });
-      wrapper.addEventListener('touchstart', handleTouchStart, { passive: true });
-      wrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
-    }
+    // Attach directly to window with passive: false so preventDefault() stops page scroll
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
-      if (wrapper) {
-        wrapper.removeEventListener('wheel', handleWheel);
-        wrapper.removeEventListener('touchstart', handleTouchStart);
-        wrapper.removeEventListener('touchmove', handleTouchMove);
-      }
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
   }, [goToSlide, onScrollToNext]);
 
