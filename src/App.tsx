@@ -567,21 +567,7 @@ export function App() {
 
               
 
-              <div className="flex items-center gap-3 mt-1">
-                <button
-                  onClick={() => scrollToTarget('#flavors')}
-                  className="text-white underline underline-offset-4 text-xs sm:text-sm font-medium hover:text-white/80 transition-colors drop-shadow-sm cursor-pointer"
-                >
-                  See our products
-                </button>
-                <button
-                  onClick={() => scrollToTarget('#the-pour')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
-                >
-                  <Play className="w-3 h-3 fill-white text-white" />
-                  <span>Watch Pour</span>
-                </button>
-              </div>
+              
             </motion.div>
           </AnimatePresence>
         </div>
