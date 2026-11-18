@@ -178,17 +178,17 @@ const SECTIONS: JuiceSection[] = [
 ];
 
 interface JuiceScrollHeroProps {
-  onScrollToNext?: () => void;
+  isLocked?: boolean;
+  onUnlockAndNext?: () => void;
   onNavigateSection?: (sectionId: string) => void;
 }
 
-export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
+export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrollHeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeIndexRef = useRef(0);
   activeIndexRef.current = activeIndex;
 
   const isAnimatingRef = useRef(false);
-  const touchStartY = useRef(0);
 
   const mainWrapperRef = useRef<HTMLDivElement>(null);
   const bgLayerRef = useRef<HTMLDivElement>(null);
@@ -279,47 +279,36 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
     }
   }, []);
 
-  // Wheel and touch gesture controller: One-by-one flavor transitions, then scroll after 4th flavor
+  // Wheel and touch controller: Advances flavors 1 by 1 while locked; unlocks after 4th flavor
   useEffect(() => {
     let lastWheelTime = 0;
 
     const handleWheel = (e: WheelEvent) => {
-      // Check if user is viewing the hero section (at top of page)
-      const scrollY = window.scrollY;
-      const isAtHero = scrollY <= 40;
+      // Only process when hero is locked at the top of the page
+      if (!isLocked) return;
 
-      if (!isAtHero) return;
+      e.preventDefault();
+      e.stopPropagation();
 
       const now = performance.now();
+      if (now - lastWheelTime < 550 || isAnimatingRef.current) return;
+
       const currentIdx = activeIndexRef.current;
 
-      // Scrolling DOWN
-      if (e.deltaY > 12) {
+      if (e.deltaY > 15) {
+        // Scrolling DOWN
         if (currentIdx < SECTIONS.length - 1) {
-          // Locked in Hero: change flavors 1 by 1
-          e.preventDefault();
-          e.stopPropagation();
-
-          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
-
+          // Advance flavor 1 by 1: 0 -> 1 -> 2 -> 3
           lastWheelTime = now;
           goToSlide(currentIdx + 1);
         } else {
-          // Reached the 4th flavor (index 3)! Next downward scroll unlocks page and glides to Section 2
-          if (now - lastWheelTime < 500) {
-            e.preventDefault();
-            return;
-          }
-          onScrollToNext?.();
+          // On the 4th flavor! Downward scroll now unlocks and glides into Section 2
+          lastWheelTime = now;
+          onUnlockAndNext?.();
         }
-      } else if (e.deltaY < -12) {
+      } else if (e.deltaY < -15) {
         // Scrolling UP
-        if (currentIdx > 0 && scrollY <= 15) {
-          e.preventDefault();
-          e.stopPropagation();
-
-          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
-
+        if (currentIdx > 0) {
           lastWheelTime = now;
           goToSlide(currentIdx - 1);
         }
@@ -332,39 +321,38 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      const scrollY = window.scrollY;
-      const isAtHero = scrollY <= 40;
-      if (!isAtHero) return;
+      if (!isLocked) return;
 
       const touchEndY = e.touches[0].clientY;
       const deltaY = touchStartY - touchEndY;
       const now = performance.now();
-      const currentIdx = activeIndexRef.current;
 
-      if (deltaY > 30) {
-        // Swipe UP -> Scroll DOWN
-        if (currentIdx < SECTIONS.length - 1) {
-          e.preventDefault();
-          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
-          lastWheelTime = now;
-          touchStartY = touchEndY;
-          goToSlide(currentIdx + 1);
-        } else {
-          onScrollToNext?.();
-        }
-      } else if (deltaY < -30) {
-        // Swipe DOWN -> Scroll UP
-        if (currentIdx > 0 && scrollY <= 15) {
-          e.preventDefault();
-          if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
-          lastWheelTime = now;
-          touchStartY = touchEndY;
-          goToSlide(currentIdx - 1);
+      if (Math.abs(deltaY) > 30) {
+        e.preventDefault();
+        if (now - lastWheelTime < 550 || isAnimatingRef.current) return;
+
+        const currentIdx = activeIndexRef.current;
+        if (deltaY > 30) {
+          // Swipe UP (Scroll DOWN)
+          if (currentIdx < SECTIONS.length - 1) {
+            lastWheelTime = now;
+            touchStartY = touchEndY;
+            goToSlide(currentIdx + 1);
+          } else {
+            lastWheelTime = now;
+            onUnlockAndNext?.();
+          }
+        } else if (deltaY < -30) {
+          // Swipe DOWN (Scroll UP)
+          if (currentIdx > 0) {
+            lastWheelTime = now;
+            touchStartY = touchEndY;
+            goToSlide(currentIdx - 1);
+          }
         }
       }
     };
 
-    // Attach directly to window with passive: false so preventDefault() stops page scroll
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -374,7 +362,7 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [goToSlide, onScrollToNext]);
+  }, [isLocked, goToSlide, onUnlockAndNext]);
 
   const currentSection = SECTIONS[activeIndex];
 
@@ -519,7 +507,13 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
         </button>
 
         <button
-          onClick={() => goToSlide((activeIndex + 1) % SECTIONS.length)}
+          onClick={() => {
+            if (activeIndex < SECTIONS.length - 1) {
+              goToSlide(activeIndex + 1);
+            } else {
+              onUnlockAndNext?.();
+            }
+          }}
           aria-label="Next Flavor"
           className="pointer-events-auto w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 hover:scale-105 active:scale-95 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-xl transition-all duration-300 ease-out cursor-pointer"
         >
@@ -573,7 +567,7 @@ export function JuiceScrollHero({ onScrollToNext }: JuiceScrollHeroProps) {
         <button
           onClick={() => {
             playChime();
-            onScrollToNext?.();
+            onUnlockAndNext?.();
           }}
           className="pointer-events-auto flex items-center gap-2 text-white/70 hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-wider group"
         >

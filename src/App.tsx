@@ -89,6 +89,10 @@ export function App() {
   const pourContainerRef = useRef<HTMLDivElement>(null);
   const flavorsContainerRef = useRef<HTMLDivElement>(null);
 
+  const [isHeroLocked, setIsHeroLocked] = useState(true);
+  const isHeroLockedRef = useRef(true);
+  isHeroLockedRef.current = isHeroLocked;
+
   const [isPourLocked, setIsPourLocked] = useState(false);
   const isPourLockedRef = useRef(false);
   isPourLockedRef.current = isPourLocked;
@@ -114,6 +118,9 @@ export function App() {
     lenisRef.current = lenis;
     (window as any).__lenis = lenis;
 
+    // Lock page on hero initially
+    lenis.stop(); // Initial hero lock
+
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
@@ -128,6 +135,16 @@ export function App() {
   }, []);
 
   // Handlers for unlocking Section 2 and advancing / rewinding
+  
+  const handleHeroUnlockAndNext = () => {
+    setIsHeroLocked(false);
+    isHeroLockedRef.current = false;
+    if (lenisRef.current) {
+      lenisRef.current.start();
+    }
+    scrollToTarget('#the-pour');
+  };
+
   const handlePourComplete = () => {
     setIsPourLocked(false);
     isPourLockedRef.current = false;
@@ -173,6 +190,18 @@ export function App() {
 
           // Update top navbar active tab indicator based on natural scroll position
           const scrollY = window.scrollY;
+            // Re-lock hero when user returns to top
+            if (scrollY <= 15 && !isHeroLockedRef.current && !isNavigatingRef.current) {
+              if (lenisRef.current) {
+                lenisRef.current.scrollTo(0, { immediate: true });
+                lenisRef.current.stop();
+              }
+              setIsHeroLocked(true);
+              isHeroLockedRef.current = true;
+              setActiveNav('HOME');
+              return;
+            }
+
           const pourEl = pourContainerRef.current;
           const flavorsEl = document.getElementById('flavors');
           const heritageEl = document.getElementById('heritage');
@@ -504,7 +533,8 @@ export function App() {
           SECTION 1: HERO (NICOLAI PALMKVIST JUICE-PROJECT LIVE DEMO SCROLL)
           ======================================================== */}
       <JuiceScrollHero
-        onScrollToNext={() => scrollToTarget('#the-pour')}
+        isLocked={isHeroLocked}
+        onUnlockAndNext={handleHeroUnlockAndNext}
         onNavigateSection={(secId) => scrollToTarget(secId)}
       />
 
