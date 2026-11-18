@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-import { Instagram, Facebook, Globe, Share2, ArrowRight } from 'lucide-react';
 import { playScoopPop, playChime } from '../utils/audio';
 
 export interface JuiceSection {
@@ -41,30 +40,30 @@ const SECTIONS: JuiceSection[] = [
     ingredients: [
       {
         src: '/images/ref/ing-3-1.png',
-        top: '18%',
-        left: '14%',
-        width: '11vw',
+        top: '15%',
+        left: '12%',
+        width: '12vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-3-2.png',
-        top: '16%',
+        top: '14%',
         left: '74%',
-        width: '12vw',
+        width: '13vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-3-3.png',
-        top: '68%',
-        left: '72%',
-        width: '10vw',
+        top: '70%',
+        left: '73%',
+        width: '11vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/kiwi-decor.png',
         top: '2%',
-        left: '5%',
-        width: '20vw',
+        left: '4%',
+        width: '22vw',
         animClass: 'animate-drift-slow',
       },
     ],
@@ -85,30 +84,30 @@ const SECTIONS: JuiceSection[] = [
     ingredients: [
       {
         src: '/images/ref/ing-0-1.png',
-        top: '19%',
-        left: '13%',
-        width: '11vw',
+        top: '16%',
+        left: '12%',
+        width: '12vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-0-2.png',
-        top: '15%',
-        left: '73%',
-        width: '12vw',
+        top: '14%',
+        left: '74%',
+        width: '13vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-0-3.png',
-        top: '67%',
-        left: '71%',
-        width: '10vw',
+        top: '68%',
+        left: '72%',
+        width: '11vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/strawberry-decor.png',
         top: '2%',
         left: '70%',
-        width: '22vw',
+        width: '23vw',
         animClass: 'animate-drift-slow',
       },
     ],
@@ -129,30 +128,30 @@ const SECTIONS: JuiceSection[] = [
     ingredients: [
       {
         src: '/images/ref/ing-2-1.png',
-        top: '17%',
-        left: '15%',
-        width: '12vw',
+        top: '15%',
+        left: '13%',
+        width: '13vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-2-2.png',
-        top: '18%',
-        left: '72%',
-        width: '11.5vw',
+        top: '16%',
+        left: '73%',
+        width: '12.5vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-2-3.png',
-        top: '69%',
-        left: '70%',
-        width: '11vw',
+        top: '70%',
+        left: '71%',
+        width: '11.5vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/banana-decor.png',
         top: '2%',
-        left: '4%',
-        width: '22vw',
+        left: '3%',
+        width: '23vw',
         animClass: 'animate-drift-slow',
       },
     ],
@@ -172,31 +171,31 @@ const SECTIONS: JuiceSection[] = [
       'Velvety double-churned Belgian 72% dark chocolate gelato loaded with crunchy chocolate pearls and molten hot fudge drizzle.',
     ingredients: [
       {
-        src: '/images/ref/ing-1-1.png',
-        top: '19%',
-        left: '14%',
-        width: '11.5vw',
+        src: '/images/choco-bite-1.png',
+        top: '15%',
+        left: '11%',
+        width: '13vw',
         animClass: 'animate-float-slow',
       },
       {
-        src: '/images/ref/ing-1-2.png',
-        top: '16%',
-        left: '73%',
-        width: '12vw',
+        src: '/images/choco-bite-2.png',
+        top: '14%',
+        left: '74%',
+        width: '13vw',
         animClass: 'animate-float-reverse',
       },
       {
-        src: '/images/ref/ing-1-3.png',
-        top: '68%',
-        left: '71%',
-        width: '10.5vw',
+        src: '/images/choco-bite-3.png',
+        top: '69%',
+        left: '72%',
+        width: '11.5vw',
         animClass: 'animate-float-medium',
       },
       {
-        src: '/images/chocolate-decor.png',
-        top: '2%',
-        left: '68%',
-        width: '22vw',
+        src: '/images/choco-bite-4.png',
+        top: '67%',
+        left: '12%',
+        width: '12vw',
         animClass: 'animate-drift-slow',
       },
     ],
@@ -212,7 +211,6 @@ interface JuiceScrollHeroProps {
 export function JuiceScrollHero({
   isLocked = true,
   onUnlockAndNext,
-  onNavigateSection,
 }: JuiceScrollHeroProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({
@@ -231,8 +229,6 @@ export function JuiceScrollHero({
   const isAnimatingRef = useRef(false);
   const currentIndexRef = useRef(0);
   currentIndexRef.current = currentIndex;
-
-  const currentSection = SECTIONS[currentIndex];
 
   /**
    * Transition to a slide using Nicolai Palmkvist's exact GSAP mechanics
@@ -331,7 +327,7 @@ export function JuiceScrollHero({
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
         } else {
-          // After 4th flavor: advance to Section 2
+          // After 4th flavor: advance to Section 2 (#the-pour)
           if (onUnlockAndNext) {
             playChime();
             onUnlockAndNext();
@@ -461,82 +457,29 @@ export function JuiceScrollHero({
             }}
           >
             {/* ====================================================
-                LEFT COLUMN: EDITORIAL HEADLINE & STORY PARAGRAPH
-                Matches the "Pure Taste" editorial column from reference
+                LEFT COLUMN: LARGER EDITORIAL HEADLINE & STORY
                 ==================================================== */}
-            <div className="absolute left-6 sm:left-10 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-30 max-w-[260px] sm:max-w-[310px] lg:max-w-[340px] flex flex-col items-start pointer-events-auto select-text">
+            <div className="absolute left-6 sm:left-12 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-30 max-w-[280px] sm:max-w-[340px] lg:max-w-[400px] xl:max-w-[440px] flex flex-col items-start pointer-events-auto select-text">
               <h1
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-bold text-white uppercase tracking-tight leading-[0.95] mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] select-none"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[5.5rem] font-bold text-white uppercase tracking-tight leading-[0.92] mb-5 drop-shadow-[0_6px_20px_rgba(0,0,0,0.4)] select-none"
                 style={{ fontFamily: "'Anton', sans-serif" }}
               >
                 {sec.heroTitle}
               </h1>
-              <p className="text-white/90 text-xs sm:text-sm lg:text-[0.95rem] leading-relaxed font-normal mb-2 drop-shadow-sm">
+              <p className="text-white/95 text-sm sm:text-base lg:text-lg xl:text-[1.15rem] leading-relaxed font-normal drop-shadow-md">
                 {sec.description}
               </p>
             </div>
 
             {/* ====================================================
-                BOTTOM-LEFT: SOCIAL MEDIA ICONS
-                Matches reference horizontal footer social links
-                ==================================================== */}
-            <div className="absolute bottom-7 left-6 sm:left-10 lg:left-16 xl:left-24 z-30 flex items-center gap-4 text-white/80 pointer-events-auto">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white hover:scale-110 transition-all p-1"
-                title="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white hover:scale-110 transition-all p-1"
-                title="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="#website"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onNavigateSection?.('#about');
-                }}
-                className="hover:text-white hover:scale-110 transition-all p-1"
-                title="Ice-E Official"
-              >
-                <Globe className="w-4 h-4" />
-              </a>
-              <a
-                href="#share"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (navigator.share) {
-                    navigator.share({ title: 'ICE-E Gelato', url: window.location.href });
-                  }
-                }}
-                className="hover:text-white hover:scale-110 transition-all p-1"
-                title="Share Flavor"
-              >
-                <Share2 className="w-4 h-4" />
-              </a>
-            </div>
-
-            {/* ====================================================
-                CENTER: GIANT CONDENSED LETTERS CLOSELY FRAMING BOWL
-                "KI" [Bowl] "WI"
-                "BER" [Bowl] "RY"
-                "BAN" [Bowl] "ANA"
-                "CHO" [Bowl] "CO"
+                CENTER: EXTRA LARGE CONDENSED ANTON LETTERS
+                Larger font hugging the expanded circular bowl
                 ==================================================== */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none overflow-hidden">
               <div className="relative flex items-center justify-center">
                 {/* Left Word Segment */}
                 <span
-                  className="text-[26vw] sm:text-[22vw] lg:text-[200px] xl:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -mr-6 sm:-mr-10 lg:-mr-14"
+                  className="text-[30vw] sm:text-[26vw] md:text-[23vw] lg:text-[240px] xl:text-[290px] 2xl:text-[330px] font-normal uppercase leading-none text-white drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)] -mr-8 sm:-mr-12 lg:-mr-16 xl:-mr-20"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -545,12 +488,12 @@ export function JuiceScrollHero({
                   {sec.firstWord}
                 </span>
 
-                {/* Center Spacer exact match to bowl diameter */}
-                <div className="w-[44vw] sm:w-[36vw] md:w-[32vw] lg:w-[28vw] max-w-[380px] aspect-square shrink-0 pointer-events-none" />
+                {/* Center Spacer: sized to match the expanded bowl */}
+                <div className="w-[50vw] sm:w-[42vw] md:w-[38vw] lg:w-[34vw] xl:w-[32vw] max-w-[470px] aspect-square shrink-0 pointer-events-none" />
 
                 {/* Right Word Segment */}
                 <span
-                  className="text-[26vw] sm:text-[22vw] lg:text-[200px] xl:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -ml-6 sm:-ml-10 lg:-ml-14"
+                  className="text-[30vw] sm:text-[26vw] md:text-[23vw] lg:text-[240px] xl:text-[290px] 2xl:text-[330px] font-normal uppercase leading-none text-white drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)] -ml-8 sm:-ml-12 lg:-ml-16 xl:-ml-20"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -562,8 +505,8 @@ export function JuiceScrollHero({
             </div>
 
             {/* ====================================================
-                CENTER: CONTINUOUSLY ROTATING CIRCULAR BOWL (360° SPIN)
-                Smoothly spins on center axis, with hover & click to next
+                CENTER: EXPANDED CONTINUOUSLY ROTATING CIRCULAR BOWL
+                Increased size for bold presence + 360° smooth spin
                 ==================================================== */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <div
@@ -571,15 +514,15 @@ export function JuiceScrollHero({
                 className="group cursor-pointer pointer-events-auto will-change-transform transition-transform hover:scale-105 active:scale-95 duration-300"
                 title="Click to explore next flavor"
               >
-                {/* Subtle Glow Aura behind circular bowl */}
+                {/* Enhanced Radial Glow behind circular bowl */}
                 <div
-                  className="absolute -inset-6 rounded-full blur-2xl opacity-40 pointer-events-none"
+                  className="absolute -inset-8 rounded-full blur-3xl opacity-50 pointer-events-none"
                   style={{
                     background: `radial-gradient(circle, ${sec.color} 0%, transparent 70%)`,
                   }}
                 />
 
-                <div className="w-[46vw] sm:w-[38vw] md:w-[34vw] lg:w-[30vw] max-w-[400px] aspect-square rounded-full overflow-hidden shadow-[0_35px_80px_rgba(0,0,0,0.85)] filter select-none">
+                <div className="w-[52vw] sm:w-[44vw] md:w-[40vw] lg:w-[36vw] xl:w-[34vw] max-w-[490px] aspect-square rounded-full overflow-hidden shadow-[0_40px_90px_rgba(0,0,0,0.85)] filter select-none">
                   <img
                     src={sec.circleBowlImage}
                     alt={sec.fullName}
@@ -593,20 +536,18 @@ export function JuiceScrollHero({
 
             {/* ====================================================
                 CENTER BOTTOM: "CHOOSE YOUR SCOOP" HAIRLINE LINE
-                Matches reference "choose your size" under product
                 ==================================================== */}
             <div className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-25 flex items-center gap-3 pointer-events-none opacity-85 select-none">
-              <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
-              <span
-                className="text-white text-[10px] sm:text-xs font-semibold tracking-widest uppercase font-mono drop-shadow-sm"
-              >
+              <div className="w-12 sm:w-20 h-[1px] bg-white/40" />
+              <span className="text-white text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase font-mono drop-shadow-sm">
                 choose your scoop
               </span>
-              <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
+              <div className="w-12 sm:w-20 h-[1px] bg-white/40" />
             </div>
 
             {/* ====================================================
                 FLOATING INGREDIENTS AROUND PRODUCT
+                Uses clean, transparent chocolate bites for chocolate
                 ==================================================== */}
             <div className="absolute inset-0 pointer-events-none z-15 overflow-hidden">
               {sec.ingredients.map((ing, ingIdx) => (
@@ -620,8 +561,8 @@ export function JuiceScrollHero({
                     top: ing.top,
                     left: ing.left,
                     width: ing.width,
-                    maxWidth: '190px',
-                    minWidth: '60px',
+                    maxWidth: '220px',
+                    minWidth: '70px',
                   }}
                   draggable={false}
                 />
@@ -629,15 +570,14 @@ export function JuiceScrollHero({
             </div>
 
             {/* ====================================================
-                RIGHT SIDE: FLAVOR LABEL & PORTION PILL SELECTORS
-                Matches "Cucumber Flavor" + "[ 500 ml ] [ 300 ml ] [ 100 ml ]"
+                RIGHT SIDE: FLAVOR LABEL & ENLARGED PORTION PILLS
                 ==================================================== */}
-            <div className="absolute right-6 sm:right-10 lg:right-16 xl:right-24 top-1/2 -translate-y-1/2 z-30 flex flex-col items-end pointer-events-auto select-none">
-              <span className="text-white/95 text-xs sm:text-sm lg:text-base font-semibold tracking-wide mb-3 drop-shadow-sm">
+            <div className="absolute right-6 sm:right-12 lg:right-16 xl:right-24 top-1/2 -translate-y-1/2 z-30 flex flex-col items-end pointer-events-auto select-none">
+              <span className="text-white text-sm sm:text-base lg:text-lg xl:text-xl font-bold tracking-wide mb-4 drop-shadow-md">
                 {sec.flavorLabel}
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 {['Single', 'Double', 'Pint'].map((size) => {
                   const isSelected = selectedSizes[idx] === size;
                   return (
@@ -647,9 +587,9 @@ export function JuiceScrollHero({
                         playScoopPop();
                         setSelectedSizes((prev) => ({ ...prev, [idx]: size }));
                       }}
-                      className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer ${
+                      className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm lg:text-base font-bold tracking-wide transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-white text-stone-900 shadow-xl scale-105'
+                          ? 'bg-white text-stone-900 shadow-2xl scale-105'
                           : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/25'
                       }`}
                     >
@@ -658,23 +598,6 @@ export function JuiceScrollHero({
                   );
                 })}
               </div>
-            </div>
-
-            {/* ====================================================
-                BOTTOM-RIGHT: CTA BUTTON
-                Matches reference "Import template >" bottom right pill
-                ==================================================== */}
-            <div className="absolute bottom-6 sm:bottom-7 right-6 sm:right-10 lg:right-16 xl:right-24 z-30 pointer-events-auto">
-              <button
-                onClick={() => {
-                  playChime();
-                  onNavigateSection?.('#flavors');
-                }}
-                className="group flex items-center gap-2 bg-white text-stone-900 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold tracking-wide shadow-2xl hover:bg-amber-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <span>Explore Flavors</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
             </div>
           </div>
         ))}
