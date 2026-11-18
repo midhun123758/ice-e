@@ -463,7 +463,7 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
                     src={sec.circleBowlImage}
                     alt={sec.fullName}
                     loading="eager"
-                    className="w-full h-full object-cover select-none drop-shadow-2xl pointer-events-none"
+                    className="w-full h-full object-cover select-none drop-shadow-2xl pointer-events-none animate-spin-smooth"
                     draggable={false}
                   />
                 </div>
