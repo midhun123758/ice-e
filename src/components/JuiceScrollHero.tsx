@@ -1,16 +1,20 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
+import { Instagram, Facebook, Globe, Share2, ArrowRight } from 'lucide-react';
 import { playScoopPop, playChime } from '../utils/audio';
 
 export interface JuiceSection {
   id: string;
   firstWord: string;
   secondWord: string;
+  heroTitle: string;
+  flavorLabel: string;
   fullName: string;
   number: string;
   color: string;
   gradient: string;
   circleBowlImage: string;
+  description: string;
   ingredients: {
     src: string;
     top: string;
@@ -25,151 +29,174 @@ const SECTIONS: JuiceSection[] = [
     id: 'kiwi',
     firstWord: 'KI',
     secondWord: 'WI',
+    heroTitle: 'Pure Taste',
+    flavorLabel: 'Kiwi Garden Flavor',
     fullName: 'Kiwi Garden Gelato',
     number: '01',
     color: '#31D677',
     gradient: 'radial-gradient(at center center, #31D677 30%, #259B57 72%)',
     circleBowlImage: '/images/kiwi-bowl-circle.png',
+    description:
+      'Crafted from nature’s best, every scoop is a blend of pure hand-sliced kiwi wheels, sweet white grapes, and double-churned custard.',
     ingredients: [
       {
         src: '/images/ref/ing-3-1.png',
         top: '18%',
-        left: '12%',
-        width: '13vw',
+        left: '14%',
+        width: '11vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-3-2.png',
         top: '16%',
-        left: '78%',
-        width: '14vw',
+        left: '74%',
+        width: '12vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-3-3.png',
         top: '68%',
-        left: '76%',
-        width: '12vw',
+        left: '72%',
+        width: '10vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/kiwi-decor.png',
-        top: '0%',
-        left: '4%',
-        width: '24vw',
+        top: '2%',
+        left: '5%',
+        width: '20vw',
         animClass: 'animate-drift-slow',
       },
     ],
   },
   {
     id: 'strawberry',
-    firstWord: 'BE',
+    firstWord: 'BER',
     secondWord: 'RY',
+    heroTitle: 'Pure Taste',
+    flavorLabel: 'Ruby Strawberry Creme',
     fullName: 'Ruby Strawberry Creme',
     number: '02',
     color: '#FF4F78',
     gradient: 'radial-gradient(at center center, #FF4F78 40%, #D92A54 72%)',
     circleBowlImage: '/images/strawberry-bowl-circle.png',
+    description:
+      'Handpicked alpine strawberries blended into a luscious velvety cream base, topped with delicate white chocolate shards and fresh berry nectar.',
     ingredients: [
       {
         src: '/images/ref/ing-0-1.png',
         top: '19%',
-        left: '11%',
-        width: '13vw',
+        left: '13%',
+        width: '11vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-0-2.png',
         top: '15%',
-        left: '77%',
-        width: '14vw',
+        left: '73%',
+        width: '12vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-0-3.png',
         top: '67%',
-        left: '75%',
-        width: '12vw',
+        left: '71%',
+        width: '10vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/strawberry-decor.png',
-        top: '0%',
+        top: '2%',
         left: '70%',
-        width: '26vw',
+        width: '22vw',
         animClass: 'animate-drift-slow',
       },
     ],
   },
   {
     id: 'banana',
-    firstWord: 'BA',
-    secondWord: 'NA',
+    firstWord: 'BAN',
+    secondWord: 'ANA',
+    heroTitle: 'Pure Taste',
+    flavorLabel: 'Banana Honey Blossom',
     fullName: 'Banana Honey Blossom',
     number: '03',
     color: '#FFA94D',
     gradient: 'radial-gradient(at center center, #FFA94D 40%, #FF7E3D 72%)',
     circleBowlImage: '/images/banana-bowl-circle.png',
+    description:
+      'Sun-ripened banana slices folded into wildflower honey custard, topped with clouds of toasted marshmallow meringue and crispy golden honeycomb.',
     ingredients: [
       {
         src: '/images/ref/ing-2-1.png',
         top: '17%',
-        left: '13%',
-        width: '14vw',
+        left: '15%',
+        width: '12vw',
         animClass: 'animate-float-slow',
       },
       {
         src: '/images/ref/ing-2-2.png',
         top: '18%',
-        left: '76%',
-        width: '13.5vw',
+        left: '72%',
+        width: '11.5vw',
         animClass: 'animate-float-reverse',
       },
       {
         src: '/images/ref/ing-2-3.png',
         top: '69%',
-        left: '74%',
-        width: '13vw',
+        left: '70%',
+        width: '11vw',
         animClass: 'animate-float-medium',
       },
       {
         src: '/images/banana-decor.png',
-        top: '0%',
-        left: '2%',
-        width: '25vw',
+        top: '2%',
+        left: '4%',
+        width: '22vw',
         animClass: 'animate-drift-slow',
       },
     ],
   },
   {
     id: 'chocolate',
-    firstWord: 'CH',
-    secondWord: 'OC',
-    fullName: 'Belgian Cacao Velvet',
+    firstWord: 'CHO',
+    secondWord: 'CO',
+    heroTitle: 'Pure Taste',
+    flavorLabel: 'Belgian Dark Cocoa',
+    fullName: 'Belgian Dark Chocolate',
     number: '04',
-    color: '#A259FF',
-    gradient: 'radial-gradient(at center center, #A259FF 0%, #6A0DAD 72%)',
+    color: '#7B3F00',
+    gradient: 'radial-gradient(at center center, #7B3F00 35%, #421D05 75%)',
     circleBowlImage: '/images/chocolate-bowl-circle.png',
+    description:
+      'Velvety double-churned Belgian 72% dark chocolate gelato loaded with crunchy chocolate pearls and molten hot fudge drizzle.',
     ingredients: [
       {
-        src: '/images/choco-float-1.png',
-        top: '16%',
-        left: '10%',
-        width: '13vw',
+        src: '/images/ref/ing-1-1.png',
+        top: '19%',
+        left: '14%',
+        width: '11.5vw',
         animClass: 'animate-float-slow',
       },
       {
-        src: '/images/choco-float-2.png',
-        top: '15%',
-        left: '78%',
-        width: '13vw',
+        src: '/images/ref/ing-1-2.png',
+        top: '16%',
+        left: '73%',
+        width: '12vw',
         animClass: 'animate-float-reverse',
       },
       {
+        src: '/images/ref/ing-1-3.png',
+        top: '68%',
+        left: '71%',
+        width: '10.5vw',
+        animClass: 'animate-float-medium',
+      },
+      {
         src: '/images/chocolate-decor.png',
-        top: '0%',
+        top: '2%',
         left: '68%',
-        width: '27vw',
+        width: '22vw',
         animClass: 'animate-drift-slow',
       },
     ],
@@ -182,103 +209,104 @@ interface JuiceScrollHeroProps {
   onNavigateSection?: (sectionId: string) => void;
 }
 
-export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrollHeroProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeIndexRef = useRef(0);
-  activeIndexRef.current = activeIndex;
+export function JuiceScrollHero({
+  isLocked = true,
+  onUnlockAndNext,
+  onNavigateSection,
+}: JuiceScrollHeroProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({
+    0: 'Single',
+    1: 'Single',
+    2: 'Single',
+    3: 'Single',
+  });
 
-  const isAnimatingRef = useRef(false);
-
-  const mainWrapperRef = useRef<HTMLDivElement>(null);
-  const bgLayerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Exact Nicolai Palmkvist fullpage vertical slide + GSAP scale animation
+  // Animation Lock Flag
+  const isAnimatingRef = useRef(false);
+  const currentIndexRef = useRef(0);
+  currentIndexRef.current = currentIndex;
+
+  const currentSection = SECTIONS[currentIndex];
+
+  /**
+   * Transition to a slide using Nicolai Palmkvist's exact GSAP mechanics
+   */
   const goToSlide = useCallback((newIndex: number) => {
-    if (newIndex === activeIndexRef.current || isAnimatingRef.current) return;
     if (newIndex < 0 || newIndex >= SECTIONS.length) return;
+    if (newIndex === currentIndexRef.current || isAnimatingRef.current) return;
 
+    const oldIndex = currentIndexRef.current;
     isAnimatingRef.current = true;
-    const originIdx = activeIndexRef.current;
-    const destinationIdx = newIndex;
-
-    const originEl = sectionRefs.current[originIdx];
-    const destinationEl = sectionRefs.current[destinationIdx];
-    const toGradient = SECTIONS[destinationIdx].gradient;
 
     playScoopPop();
 
-    // 1. Change background gradient smoothly (0.5s ease: none like template)
-    if (bgLayerRef.current) {
-      gsap.to(bgLayerRef.current, {
-        backgroundImage: toGradient,
-        duration: 0.5,
-        ease: 'none',
-      });
-    }
+    const origin = sectionRefs.current[oldIndex];
+    const dest = sectionRefs.current[newIndex];
+    const container = containerRef.current;
+    const bg = bgRef.current;
 
-    // 2. Shrink leaving section to scale: 0.5 (0.6s ease: power2.out like template)
-    if (originEl) {
-      gsap.to(originEl, {
-        scale: 0.5,
-        duration: 0.6,
+    const newGradient = SECTIONS[newIndex].gradient;
+
+    // 1. Morph background radial gradient
+    if (bg) {
+      gsap.to(bg, {
+        backgroundImage: newGradient,
+        duration: 0.65,
         ease: 'power2.out',
       });
     }
 
-    // 3. Translate container vertically with Fullpage.js style physics (0.85s ease: power2.inOut)
-    if (containerRef.current) {
-      gsap.to(containerRef.current, {
-        y: `-${destinationIdx * 100}vh`,
-        duration: 0.85,
+    // 2. Scale down origin section
+    if (origin) {
+      gsap.to(origin, {
+        scale: 0.55,
+        duration: 0.6,
+        ease: 'power2.inOut',
+      });
+    }
+
+    // 3. Slide container vertically (-newIndex * 100vh)
+    if (container) {
+      gsap.to(container, {
+        y: `${-newIndex * 100}vh`,
+        duration: 0.7,
         ease: 'power2.inOut',
         onComplete: () => {
-          setActiveIndex(destinationIdx);
+          setCurrentIndex(newIndex);
           isAnimatingRef.current = false;
         },
       });
     }
 
-    // 4. Grow entering section to scale: 1 (0.6s ease: power2.out like template)
-    if (destinationEl) {
+    // 4. Scale up destination section
+    if (dest) {
       gsap.fromTo(
-        destinationEl,
-        { scale: 0.5 },
+        dest,
+        { scale: 0.55 },
         {
           scale: 1,
           duration: 0.7,
-          delay: 0.05,
-          ease: 'power2.out',
+          ease: 'power2.inOut',
         }
       );
     }
   }, []);
 
-  // Initial GSAP setup: Section 0 at scale 1; sections 1..3 at scale 0.5
+  /**
+   * Wheel Listener for exact slide-by-slide lock
+   */
   useEffect(() => {
-    sectionRefs.current.forEach((el, idx) => {
-      if (el) {
-        if (idx === 0) {
-          gsap.set(el, { scale: 1 });
-        } else {
-          gsap.set(el, { scale: 0.5 });
-        }
-      }
-    });
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
 
-    if (containerRef.current) {
-      gsap.set(containerRef.current, { y: '0vh' });
-    }
-
-    if (bgLayerRef.current) {
-      gsap.set(bgLayerRef.current, { backgroundImage: SECTIONS[0].gradient });
-    }
-  }, []);
-
-  // Wheel and touch controller: One-by-one transitions, unlocks after 4th flavor
-  useEffect(() => {
-    let lastWheelTime = 0;
+    let wheelAccum = 0;
+    let wheelTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const handleWheel = (e: WheelEvent) => {
       if (!isLocked) return;
@@ -286,114 +314,134 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
       e.preventDefault();
       e.stopPropagation();
 
-      const now = performance.now();
-      if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
+      if (isAnimatingRef.current) return;
 
-      const currentIdx = activeIndexRef.current;
+      wheelAccum += e.deltaY;
 
-      if (e.deltaY > 15) {
-        // Scrolling DOWN
-        if (currentIdx < SECTIONS.length - 1) {
-          lastWheelTime = now;
-          goToSlide(currentIdx + 1);
+      if (wheelTimeout) clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        wheelAccum = 0;
+      }, 180);
+
+      const THRESHOLD = 55;
+
+      if (wheelAccum > THRESHOLD) {
+        wheelAccum = 0;
+        const cur = currentIndexRef.current;
+        if (cur < SECTIONS.length - 1) {
+          goToSlide(cur + 1);
         } else {
-          // 4th flavor reached! Next downward scroll unlocks into Section 2
-          lastWheelTime = now;
-          onUnlockAndNext?.();
+          // After 4th flavor: advance to Section 2
+          if (onUnlockAndNext) {
+            playChime();
+            onUnlockAndNext();
+          }
         }
-      } else if (e.deltaY < -15) {
-        // Scrolling UP
-        if (currentIdx > 0) {
-          lastWheelTime = now;
-          goToSlide(currentIdx - 1);
+      } else if (wheelAccum < -THRESHOLD) {
+        wheelAccum = 0;
+        const cur = currentIndexRef.current;
+        if (cur > 0) {
+          goToSlide(cur - 1);
         }
       }
     };
 
+    // Keyboard arrow / Page navigation
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLocked || isAnimatingRef.current) return;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        const cur = currentIndexRef.current;
+        if (cur < SECTIONS.length - 1) {
+          goToSlide(cur + 1);
+        } else if (onUnlockAndNext) {
+          onUnlockAndNext();
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        const cur = currentIndexRef.current;
+        if (cur > 0) {
+          goToSlide(cur - 1);
+        }
+      }
+    };
+
+    // Touch Swipe Navigation for mobile
     let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isLocked) return;
-
-      const touchEndY = e.touches[0].clientY;
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isLocked || isAnimatingRef.current) return;
+      const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
-      const now = performance.now();
 
-      if (Math.abs(deltaY) > 30) {
-        e.preventDefault();
-        if (now - lastWheelTime < 600 || isAnimatingRef.current) return;
-
-        const currentIdx = activeIndexRef.current;
-        if (deltaY > 30) {
-          if (currentIdx < SECTIONS.length - 1) {
-            lastWheelTime = now;
-            touchStartY = touchEndY;
-            goToSlide(currentIdx + 1);
-          } else {
-            lastWheelTime = now;
-            onUnlockAndNext?.();
+      if (Math.abs(deltaY) > 40) {
+        if (deltaY > 0) {
+          const cur = currentIndexRef.current;
+          if (cur < SECTIONS.length - 1) {
+            goToSlide(cur + 1);
+          } else if (onUnlockAndNext) {
+            onUnlockAndNext();
           }
-        } else if (deltaY < -30) {
-          if (currentIdx > 0) {
-            lastWheelTime = now;
-            touchStartY = touchEndY;
-            goToSlide(currentIdx - 1);
+        } else {
+          const cur = currentIndexRef.current;
+          if (cur > 0) {
+            goToSlide(cur - 1);
           }
         }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    heroEl.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('keydown', handleKeyDown);
+    heroEl.addEventListener('touchstart', handleTouchStart, { passive: true });
+    heroEl.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
+      heroEl.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
+      heroEl.removeEventListener('touchstart', handleTouchStart);
+      heroEl.removeEventListener('touchend', handleTouchEnd);
+      if (wheelTimeout) clearTimeout(wheelTimeout);
     };
   }, [isLocked, goToSlide, onUnlockAndNext]);
 
-  const currentSection = SECTIONS[activeIndex];
-
   return (
     <section
+      ref={heroRef}
       id="home"
-      ref={mainWrapperRef}
-      className="relative w-full h-screen min-h-screen overflow-hidden select-none isolate flex items-center justify-center bg-[#0a0a0a]"
+      className="relative w-full h-screen overflow-hidden select-none bg-[#259B57]"
+      style={{
+        touchAction: isLocked ? 'none' : 'auto',
+      }}
     >
       {/* ========================================================
-          BACKGROUND GRADIENT LAYER & ELLIPTICAL SPOTLIGHT
-          (Exact CSS from Nicolai Palmkvist's #main-wrapper::after)
+          BACKGROUND GRADIENT CANVAS
           ======================================================== */}
       <div
-        ref={bgLayerRef}
-        className="absolute inset-0 pointer-events-none z-0 transition-all duration-500 ease-out"
+        ref={bgRef}
+        id="bg"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-300"
         style={{
           backgroundImage: SECTIONS[0].gradient,
         }}
       />
 
-      {/* Nicolai's Exact Radial Elliptical Spotlight Pseudo-Overlay */}
+      {/* Atmospheric Radial Vignette */}
       <div
-        className="absolute pointer-events-none z-0"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-1 rounded-full opacity-60"
         style={{
-          top: '-50vh',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '100%',
+          width: '100vw',
           height: '100vw',
           background:
-            'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.22) 10%, rgba(255, 255, 255, 0) 50%)',
+            'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.15) 15%, rgba(255, 255, 255, 0) 55%)',
         }}
       />
 
       {/* ========================================================
           VERTICAL FULLPAGE CONTAINER (#img-container)
-          Translates vertically by -100vh per section
           ======================================================== */}
       <div
         ref={containerRef}
@@ -413,41 +461,117 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
             }}
           >
             {/* ====================================================
-                GIANT SPLIT TYPOGRAPHY (KI  WI / BE  RY / BA  NA / CH  OC)
-                In 'Anton' juicy font, uppercase
+                LEFT COLUMN: EDITORIAL HEADLINE & STORY PARAGRAPH
+                Matches the "Pure Taste" editorial column from reference
                 ==================================================== */}
-            <div className="absolute inset-0 flex items-center justify-between px-6 sm:px-16 lg:px-28 pointer-events-none z-10 select-none">
-              <span
-                className="text-[28vw] sm:text-[23vw] lg:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
-                style={{
-                  fontFamily: "'Anton', sans-serif",
-                  letterSpacing: '0.04em',
-                }}
+            <div className="absolute left-6 sm:left-10 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-30 max-w-[260px] sm:max-w-[310px] lg:max-w-[340px] flex flex-col items-start pointer-events-auto select-text">
+              <h1
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-bold text-white uppercase tracking-tight leading-[0.95] mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] select-none"
+                style={{ fontFamily: "'Anton', sans-serif" }}
               >
-                {sec.firstWord}
-              </span>
-
-              <span
-                className="text-[28vw] sm:text-[23vw] lg:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
-                style={{
-                  fontFamily: "'Anton', sans-serif",
-                  letterSpacing: '0.04em',
-                }}
-              >
-                {sec.secondWord}
-              </span>
+                {sec.heroTitle}
+              </h1>
+              <p className="text-white/90 text-xs sm:text-sm lg:text-[0.95rem] leading-relaxed font-normal mb-2 drop-shadow-sm">
+                {sec.description}
+              </p>
             </div>
 
             {/* ====================================================
-                CENTER CIRCULAR BOWL PRODUCT IMAGE WITH CONTINUOUS SMOOTH 360° SPIN
+                BOTTOM-LEFT: SOCIAL MEDIA ICONS
+                Matches reference horizontal footer social links
                 ==================================================== */}
-            <div className="relative z-20 flex items-center justify-center pointer-events-auto">
+            <div className="absolute bottom-7 left-6 sm:left-10 lg:left-16 xl:left-24 z-30 flex items-center gap-4 text-white/80 pointer-events-auto">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white hover:scale-110 transition-all p-1"
+                title="Instagram"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white hover:scale-110 transition-all p-1"
+                title="Facebook"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href="#website"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigateSection?.('#about');
+                }}
+                className="hover:text-white hover:scale-110 transition-all p-1"
+                title="Ice-E Official"
+              >
+                <Globe className="w-4 h-4" />
+              </a>
+              <a
+                href="#share"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (navigator.share) {
+                    navigator.share({ title: 'ICE-E Gelato', url: window.location.href });
+                  }
+                }}
+                className="hover:text-white hover:scale-110 transition-all p-1"
+                title="Share Flavor"
+              >
+                <Share2 className="w-4 h-4" />
+              </a>
+            </div>
+
+            {/* ====================================================
+                CENTER: GIANT CONDENSED LETTERS CLOSELY FRAMING BOWL
+                "KI" [Bowl] "WI"
+                "BER" [Bowl] "RY"
+                "BAN" [Bowl] "ANA"
+                "CHO" [Bowl] "CO"
+                ==================================================== */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none overflow-hidden">
+              <div className="relative flex items-center justify-center">
+                {/* Left Word Segment */}
+                <span
+                  className="text-[26vw] sm:text-[22vw] lg:text-[200px] xl:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -mr-6 sm:-mr-10 lg:-mr-14"
+                  style={{
+                    fontFamily: "'Anton', sans-serif",
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {sec.firstWord}
+                </span>
+
+                {/* Center Spacer exact match to bowl diameter */}
+                <div className="w-[44vw] sm:w-[36vw] md:w-[32vw] lg:w-[28vw] max-w-[380px] aspect-square shrink-0 pointer-events-none" />
+
+                {/* Right Word Segment */}
+                <span
+                  className="text-[26vw] sm:text-[22vw] lg:text-[200px] xl:text-[240px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -ml-6 sm:-ml-10 lg:-ml-14"
+                  style={{
+                    fontFamily: "'Anton', sans-serif",
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {sec.secondWord}
+                </span>
+              </div>
+            </div>
+
+            {/* ====================================================
+                CENTER: CONTINUOUSLY ROTATING CIRCULAR BOWL (360° SPIN)
+                Smoothly spins on center axis, with hover & click to next
+                ==================================================== */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <div
                 onClick={() => goToSlide((idx + 1) % SECTIONS.length)}
-                className="group cursor-pointer will-change-transform transition-transform hover:scale-105 active:scale-95 duration-300"
-                title="Click to switch flavor"
+                className="group cursor-pointer pointer-events-auto will-change-transform transition-transform hover:scale-105 active:scale-95 duration-300"
+                title="Click to explore next flavor"
               >
-                {/* Radial Glow Aura behind the bowl */}
+                {/* Subtle Glow Aura behind circular bowl */}
                 <div
                   className="absolute -inset-6 rounded-full blur-2xl opacity-40 pointer-events-none"
                   style={{
@@ -455,7 +579,7 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
                   }}
                 />
 
-                <div className="w-[74vw] sm:w-[50vw] md:w-[42vw] lg:w-[38vw] max-w-[540px] aspect-square rounded-full overflow-hidden shadow-[0_35px_80px_rgba(0,0,0,0.85)] filter select-none">
+                <div className="w-[46vw] sm:w-[38vw] md:w-[34vw] lg:w-[30vw] max-w-[400px] aspect-square rounded-full overflow-hidden shadow-[0_35px_80px_rgba(0,0,0,0.85)] filter select-none">
                   <img
                     src={sec.circleBowlImage}
                     alt={sec.fullName}
@@ -465,6 +589,20 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
                   />
                 </div>
               </div>
+            </div>
+
+            {/* ====================================================
+                CENTER BOTTOM: "CHOOSE YOUR SCOOP" HAIRLINE LINE
+                Matches reference "choose your size" under product
+                ==================================================== */}
+            <div className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-25 flex items-center gap-3 pointer-events-none opacity-85 select-none">
+              <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
+              <span
+                className="text-white text-[10px] sm:text-xs font-semibold tracking-widest uppercase font-mono drop-shadow-sm"
+              >
+                choose your scoop
+              </span>
+              <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
             </div>
 
             {/* ====================================================
@@ -482,37 +620,64 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
                     top: ing.top,
                     left: ing.left,
                     width: ing.width,
-                    maxWidth: '220px',
-                    minWidth: '70px',
+                    maxWidth: '190px',
+                    minWidth: '60px',
                   }}
                   draggable={false}
                 />
               ))}
             </div>
+
+            {/* ====================================================
+                RIGHT SIDE: FLAVOR LABEL & PORTION PILL SELECTORS
+                Matches "Cucumber Flavor" + "[ 500 ml ] [ 300 ml ] [ 100 ml ]"
+                ==================================================== */}
+            <div className="absolute right-6 sm:right-10 lg:right-16 xl:right-24 top-1/2 -translate-y-1/2 z-30 flex flex-col items-end pointer-events-auto select-none">
+              <span className="text-white/95 text-xs sm:text-sm lg:text-base font-semibold tracking-wide mb-3 drop-shadow-sm">
+                {sec.flavorLabel}
+              </span>
+
+              <div className="flex items-center gap-2">
+                {['Single', 'Double', 'Pint'].map((size) => {
+                  const isSelected = selectedSizes[idx] === size;
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => {
+                        playScoopPop();
+                        setSelectedSizes((prev) => ({ ...prev, [idx]: size }));
+                      }}
+                      className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? 'bg-white text-stone-900 shadow-xl scale-105'
+                          : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/25'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ====================================================
+                BOTTOM-RIGHT: CTA BUTTON
+                Matches reference "Import template >" bottom right pill
+                ==================================================== */}
+            <div className="absolute bottom-6 sm:bottom-7 right-6 sm:right-10 lg:right-16 xl:right-24 z-30 pointer-events-auto">
+              <button
+                onClick={() => {
+                  playChime();
+                  onNavigateSection?.('#flavors');
+                }}
+                className="group flex items-center gap-2 bg-white text-stone-900 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold tracking-wide shadow-2xl hover:bg-amber-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <span>Explore Flavors</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
         ))}
-      </div>
-
-      {/* ========================================================
-          BOTTOM STATUS BAR HUD
-          ======================================================== */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 w-full pb-8 px-6 sm:px-12 flex items-end justify-between pointer-events-none">
-        <div className="flex flex-col items-start gap-1">
-          <span className="text-white/40 text-[10px] tracking-widest uppercase font-mono">
-            FLAVOR SELECTION
-          </span>
-          <div className="flex items-baseline gap-1.5 text-white font-bold text-xl sm:text-2xl font-mono">
-            <span>{currentSection.number}</span>
-            <span className="text-white/30 text-sm font-normal">/</span>
-            <span className="text-white/40 text-sm font-normal">04</span>
-          </div>
-          <span
-            className="text-white/80 text-xs sm:text-sm font-semibold tracking-wide drop-shadow-sm mt-0.5"
-            style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
-          >
-            {currentSection.fullName}
-          </span>
-        </div>
       </div>
     </section>
   );
