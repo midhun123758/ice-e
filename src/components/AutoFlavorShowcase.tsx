@@ -521,11 +521,11 @@ export function AutoFlavorShowcase({
           Shares the exact same vibrant flavor background color.
           Left Column: The active flavor bowl image docks prominently!
           Right Column: Complete ICE - E heritage narrative.
-          NEVER EMPTY — ALWAYS 100% POPULATED AND GORGEOUS!
+          Balanced sizing and typography so it never overflows or collides.
           ======================================================== */}
       <section
         id="heritage"
-        className="relative w-full min-h-screen h-screen overflow-hidden flex flex-col lg:flex-row items-center justify-between px-6 sm:px-12 lg:px-20 py-16 sm:py-24 select-text z-10"
+        className="relative w-full min-h-screen h-screen overflow-hidden flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-14 xl:gap-20 px-6 sm:px-10 lg:px-16 xl:px-24 py-10 sm:py-14 select-text z-10"
         style={{
           background: currentBgGradient,
           transition: 'background 0.85s ease-out',
@@ -540,7 +540,7 @@ export function AutoFlavorShowcase({
         />
 
         {/* Left Column: The Active Main Flavor Bowl Placed on the Left */}
-        <div className="w-full lg:w-1/2 h-full flex items-center justify-center pointer-events-none z-10">
+        <div className="w-full md:w-1/2 h-auto md:h-full flex items-center justify-center pointer-events-none z-10">
           <div className="relative flex flex-col items-center justify-center will-change-transform">
             {/* Ground drop shadow anchored under the bowl */}
             <div className="absolute -bottom-6 w-3/4 h-10 bg-black/55 blur-2xl rounded-full pointer-events-none opacity-60" />
@@ -548,7 +548,7 @@ export function AutoFlavorShowcase({
             <img
               src={activeSlide.bowlImage}
               alt={activeSlide.title}
-              className="w-[360px] sm:w-[500px] md:w-[620px] lg:w-[740px] xl:w-[820px] max-w-[90vw] h-auto object-contain select-none drop-shadow-[0_35px_60px_rgba(0,0,0,0.55)] cursor-pointer pointer-events-auto"
+              className="w-[260px] sm:w-[340px] md:w-[420px] lg:w-[480px] xl:w-[540px] max-w-[85vw] max-h-[50vh] md:max-h-[65vh] object-contain select-none drop-shadow-[0_35px_60px_rgba(0,0,0,0.55)] cursor-pointer pointer-events-auto"
               style={{
                 transform: `rotate(-3.5deg)`,
               }}
@@ -563,11 +563,11 @@ export function AutoFlavorShowcase({
         </div>
 
         {/* Right Column: ICE - E Heritage Story Description */}
-        <div className="w-full lg:w-1/2 h-full flex items-center justify-center lg:justify-start pointer-events-auto z-10">
-          <div className="max-w-2xl flex flex-col items-center lg:items-start text-center lg:text-left select-text">
+        <div className="w-full md:w-1/2 h-auto md:h-full flex items-center justify-center md:justify-start pointer-events-auto z-10">
+          <div className="max-w-xl xl:max-w-2xl flex flex-col items-center md:items-start text-center md:text-left select-text">
             {/* Paragraph 1 */}
             <p
-              className="text-xl sm:text-2xl lg:text-3xl xl:text-[2rem] text-white font-normal leading-relaxed sm:leading-relaxed tracking-wide mb-6 drop-shadow-md"
+              className="text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] xl:text-[2rem] text-white font-normal leading-relaxed md:leading-snug lg:leading-normal tracking-normal mb-5 drop-shadow-md"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
               Born from an obsession with cold science and sensory contrast, ICE - E redefines small-batch artisanal frozen confectionery. Every scoop is an exploration of pure textures, natural fruits, and molten Belgian drizzles crafted by confectionery artisans.
@@ -575,7 +575,7 @@ export function AutoFlavorShowcase({
 
             {/* Paragraph 2 */}
             <p
-              className="text-base sm:text-lg lg:text-xl xl:text-[1.35rem] text-white/90 font-normal leading-relaxed sm:leading-relaxed tracking-wide mb-8 drop-shadow-md"
+              className="text-sm sm:text-base md:text-[1.05rem] lg:text-[1.15rem] xl:text-[1.25rem] text-white/90 font-normal leading-relaxed tracking-normal mb-7 drop-shadow-md"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
               ICE - E owes its signature smoothness to slow micro-batch churning, blending organic whole milk with real botanical extracts and crisp fruit wheels. Revered by dessert connoisseurs for unrivaled freshness, delicate crystallization-free texture, and world-class culinary craft.
@@ -588,7 +588,7 @@ export function AutoFlavorShowcase({
                 if (onGoToExperience) onGoToExperience();
                 else onGoToAbout?.();
               }}
-              className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full bg-white text-[#120803] hover:bg-white/90 font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl cursor-pointer group"
+              className="inline-flex items-center gap-2.5 px-6 py-2.5 sm:px-7 sm:py-3 rounded-full bg-white text-[#120803] hover:bg-white/90 font-bold text-sm sm:text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl cursor-pointer group"
             >
               <span>Explore The Crunch</span>
               <ArrowDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
