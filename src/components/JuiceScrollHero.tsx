@@ -225,7 +225,7 @@ export function JuiceScrollHero({
   currentIndexRef.current = currentIndex;
 
   /**
-   * Transition to a slide using Nicolai Palmkvist's exact GSAP mechanics
+   * Transition to a slide using slow, cinematic, ultra-smooth GSAP mechanics
    */
   const goToSlide = useCallback((newIndex: number) => {
     if (newIndex < 0 || newIndex >= SECTIONS.length) return;
@@ -242,31 +242,33 @@ export function JuiceScrollHero({
     const bg = bgRef.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
+    const SLOW_SMOOTH_DURATION = 1.35; // Luxurious, slow, silky-smooth glide
 
-    // 1. Morph background radial gradient
+    // 1. Morph background radial gradient with long, smooth blend
     if (bg) {
       gsap.to(bg, {
         backgroundImage: newGradient,
-        duration: 0.65,
-        ease: 'power2.out',
-      });
-    }
-
-    // 2. Scale down origin section
-    if (origin) {
-      gsap.to(origin, {
-        scale: 0.55,
-        duration: 0.6,
+        duration: 1.2,
         ease: 'power2.inOut',
       });
     }
 
-    // 3. Slide container vertically (-newIndex * 100vh)
+    // 2. Scale down and soften origin section gently
+    if (origin) {
+      gsap.to(origin, {
+        scale: 0.75,
+        opacity: 0.35,
+        duration: SLOW_SMOOTH_DURATION,
+        ease: 'power3.inOut',
+      });
+    }
+
+    // 3. Slide container vertically (-newIndex * 100vh) slowly and gracefully
     if (container) {
       gsap.to(container, {
         y: `${-newIndex * 100}vh`,
-        duration: 0.7,
-        ease: 'power2.inOut',
+        duration: SLOW_SMOOTH_DURATION,
+        ease: 'power3.inOut',
         onComplete: () => {
           setCurrentIndex(newIndex);
           isAnimatingRef.current = false;
@@ -274,22 +276,23 @@ export function JuiceScrollHero({
       });
     }
 
-    // 4. Scale up destination section
+    // 4. Scale up destination section with a long, elegant glide into full view
     if (dest) {
       gsap.fromTo(
         dest,
-        { scale: 0.55 },
+        { scale: 0.75, opacity: 0.35 },
         {
           scale: 1,
-          duration: 0.7,
-          ease: 'power2.inOut',
+          opacity: 1,
+          duration: SLOW_SMOOTH_DURATION,
+          ease: 'power3.inOut',
         }
       );
     }
   }, []);
 
   /**
-   * Wheel Listener for exact slide-by-slide lock
+   * Wheel Listener for exact slide-by-slide lock with smooth pacing
    */
   useEffect(() => {
     const heroEl = heroRef.current;
@@ -311,9 +314,9 @@ export function JuiceScrollHero({
       if (wheelTimeout) clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
         wheelAccum = 0;
-      }, 180);
+      }, 220);
 
-      const THRESHOLD = 55;
+      const THRESHOLD = 60;
 
       if (wheelAccum > THRESHOLD) {
         wheelAccum = 0;
