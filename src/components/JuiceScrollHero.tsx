@@ -554,29 +554,30 @@ export function JuiceScrollHero({
             }}
           >
             {/* ====================================================
-                LEFT COLUMN: LARGER EDITORIAL HEADLINE & STORY
+                LEFT COLUMN: BALANCED EDITORIAL HEADLINE & STORY
+                Clean Suja-style hierarchy, perfectly spaced from center
                 ==================================================== */}
-            <div className="absolute left-6 sm:left-12 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-30 max-w-[280px] sm:max-w-[340px] lg:max-w-[400px] xl:max-w-[440px] flex flex-col items-start pointer-events-auto select-text">
+            <div className="absolute left-6 sm:left-10 lg:left-12 xl:left-16 top-1/2 -translate-y-1/2 z-30 max-w-[230px] sm:max-w-[260px] lg:max-w-[290px] flex flex-col items-start pointer-events-auto select-text">
               <h1
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[5.5rem] font-bold text-white uppercase tracking-tight leading-[0.92] mb-5 drop-shadow-[0_6px_20px_rgba(0,0,0,0.4)] select-none"
+                className="text-3xl sm:text-4xl lg:text-[2.6rem] xl:text-[2.85rem] font-bold text-white uppercase tracking-tight leading-[0.95] mb-3 sm:mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] select-none"
                 style={{ fontFamily: "'Anton', sans-serif" }}
               >
                 {sec.heroTitle}
               </h1>
-              <p className="text-white/95 text-sm sm:text-base lg:text-lg xl:text-[1.15rem] leading-relaxed font-normal drop-shadow-md">
+              <p className="text-white/90 text-xs sm:text-[13px] lg:text-[14px] leading-relaxed font-normal drop-shadow-sm">
                 {sec.description}
               </p>
             </div>
 
             {/* ====================================================
-                CENTER: EXTRA LARGE CONDENSED ANTON LETTERS
-                Larger font hugging the expanded circular bowl
+                CENTER: CONDENSED ANTON LETTERS TIGHTLY FRAMING BOWL
+                Scaled to hug the bowl closely without colliding with left text
                 ==================================================== */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none overflow-hidden">
               <div className="relative flex items-center justify-center">
                 {/* Left Word Segment */}
                 <span
-                  className="text-[30vw] sm:text-[26vw] md:text-[23vw] lg:text-[240px] xl:text-[290px] 2xl:text-[330px] font-normal uppercase leading-none text-white drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)] -mr-8 sm:-mr-12 lg:-mr-16 xl:-mr-20"
+                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -mr-5 sm:-mr-8 lg:-mr-10"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -585,12 +586,12 @@ export function JuiceScrollHero({
                   {sec.firstWord}
                 </span>
 
-                {/* Center Spacer: sized to match the expanded bowl */}
-                <div className="w-[50vw] sm:w-[42vw] md:w-[38vw] lg:w-[34vw] xl:w-[32vw] max-w-[470px] aspect-square shrink-0 pointer-events-none" />
+                {/* Center Spacer: sized to match the circular bowl */}
+                <div className="w-[46vw] sm:w-[40vw] md:w-[34vw] lg:w-[28vw] xl:w-[26vw] max-w-[370px] aspect-square shrink-0 pointer-events-none" />
 
                 {/* Right Word Segment */}
                 <span
-                  className="text-[30vw] sm:text-[26vw] md:text-[23vw] lg:text-[240px] xl:text-[290px] 2xl:text-[330px] font-normal uppercase leading-none text-white drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)] -ml-8 sm:-ml-12 lg:-ml-16 xl:-ml-20"
+                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -ml-5 sm:-ml-8 lg:-ml-10"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -633,7 +634,7 @@ export function JuiceScrollHero({
                   }}
                 />
 
-                <div className="w-[52vw] sm:w-[44vw] md:w-[40vw] lg:w-[36vw] xl:w-[34vw] max-w-[490px] aspect-square rounded-full overflow-hidden shadow-[0_40px_90px_rgba(0,0,0,0.85)] filter select-none">
+                <div className="w-[52vw] sm:w-[44vw] md:w-[40vw] lg:w-[36vw] xl:w-[34vw] max-w-[390px] aspect-square rounded-full overflow-hidden shadow-[0_40px_90px_rgba(0,0,0,0.85)] filter select-none">
                   <img
                     src={sec.circleBowlImage}
                     alt={sec.fullName}
