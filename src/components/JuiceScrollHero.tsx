@@ -218,6 +218,7 @@ export function JuiceScrollHero({
   const bgRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const bowlRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Animation Lock Flag
   const isAnimatingRef = useRef(false);
@@ -292,6 +293,90 @@ export function JuiceScrollHero({
   }, []);
 
   /**
+   * Drop the 4th flavor downwards into the second section (#the-pour)
+   */
+  const dropToNextSection = useCallback(() => {
+    if (isAnimatingRef.current) return;
+    isAnimatingRef.current = true;
+
+    playScoopPop();
+
+    const activeBowl = bowlRefs.current[3];
+    const activeSection = sectionRefs.current[3];
+
+    // GSAP Timeline for the gravity drop into Section 2
+    const tl = gsap.timeline({
+      onComplete: () => {
+        isAnimatingRef.current = false;
+      },
+    });
+
+    // 1. The chocolate bowl drops down through the bottom of the section with gravity
+    if (activeBowl) {
+      tl.to(
+        activeBowl,
+        {
+          y: '115vh',
+          rotation: 14,
+          scale: 0.88,
+          duration: 1.1,
+          ease: 'power2.in',
+        },
+        0
+      );
+    }
+
+    // 2. Parallax: text and decorative ingredients disperse smoothly as the flavor plunges down
+    if (activeSection) {
+      const texts = activeSection.querySelectorAll('.select-text, h1, p');
+      const ings = activeSection.querySelectorAll(
+        '.animate-float-slow, .animate-float-reverse, .animate-float-medium, .animate-drift-slow'
+      );
+      tl.to(
+        texts,
+        {
+          y: -60,
+          opacity: 0,
+          duration: 0.75,
+          ease: 'power2.out',
+        },
+        0.05
+      );
+      tl.to(
+        ings,
+        {
+          y: '75vh',
+          opacity: 0,
+          duration: 0.95,
+          ease: 'power2.in',
+        },
+        0.1
+      );
+    }
+
+    // 3. Initiate page scroll to Section 2 (#the-pour) right as the drop plunges down
+    setTimeout(() => {
+      if (onUnlockAndNext) {
+        playChime();
+        onUnlockAndNext();
+      }
+    }, 450);
+
+    // 4. Restore original layout state after scroll has safely transitioned to Section 2
+    setTimeout(() => {
+      if (activeBowl) {
+        gsap.set(activeBowl, { y: 0, rotation: 0, scale: 1 });
+      }
+      if (activeSection) {
+        const elements = activeSection.querySelectorAll(
+          '.select-text, h1, p, .animate-float-slow, .animate-float-reverse, .animate-float-medium, .animate-drift-slow'
+        );
+        gsap.set(elements, { y: 0, opacity: 1 });
+      }
+    }, 2200);
+  }, [onUnlockAndNext]);
+
+  /**
    * Wheel Listener for exact slide-by-slide lock with smooth pacing
    */
   useEffect(() => {
@@ -324,11 +409,8 @@ export function JuiceScrollHero({
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
         } else {
-          // After 4th flavor: advance to Section 2 (#the-pour)
-          if (onUnlockAndNext) {
-            playChime();
-            onUnlockAndNext();
-          }
+          // After 4th flavor: drop the flavor down into Section 2
+          dropToNextSection();
         }
       } else if (wheelAccum < -THRESHOLD) {
         wheelAccum = 0;
@@ -347,8 +429,8 @@ export function JuiceScrollHero({
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
-        } else if (onUnlockAndNext) {
-          onUnlockAndNext();
+        } else {
+          dropToNextSection();
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
@@ -375,8 +457,8 @@ export function JuiceScrollHero({
           const cur = currentIndexRef.current;
           if (cur < SECTIONS.length - 1) {
             goToSlide(cur + 1);
-          } else if (onUnlockAndNext) {
-            onUnlockAndNext();
+          } else {
+            dropToNextSection();
           }
         } else {
           const cur = currentIndexRef.current;
@@ -504,12 +586,26 @@ export function JuiceScrollHero({
             {/* ====================================================
                 CENTER: EXPANDED CONTINUOUSLY ROTATING CIRCULAR BOWL
                 Increased size for bold presence + 360° smooth spin
+                Drops down with gravity when advancing to Section 2
                 ==================================================== */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+            <div
+              ref={(el) => (bowlRefs.current[idx] = el)}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 will-change-transform"
+            >
               <div
-                onClick={() => goToSlide((idx + 1) % SECTIONS.length)}
+                onClick={() => {
+                  if (idx === SECTIONS.length - 1) {
+                    dropToNextSection();
+                  } else {
+                    goToSlide(idx + 1);
+                  }
+                }}
                 className="group cursor-pointer pointer-events-auto will-change-transform transition-transform hover:scale-105 active:scale-95 duration-300"
-                title="Click to explore next flavor"
+                title={
+                  idx === SECTIONS.length - 1
+                    ? 'Click to drop into the molten chocolate pour'
+                    : 'Click to explore next flavor'
+                }
               >
                 {/* Enhanced Radial Glow behind circular bowl */}
                 <div
