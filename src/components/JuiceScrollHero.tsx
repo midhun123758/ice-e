@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+// lucide icons removed for clean minimal design
 import { playScoopPop, playChime } from '../utils/audio';
 
 export interface JuiceSection {
@@ -496,87 +496,7 @@ export function JuiceScrollHero({ isLocked = true, onUnlockAndNext }: JuiceScrol
         ))}
       </div>
 
-      {/* Left & Right Clickable Switcher Arrows */}
-      <div className="absolute inset-y-0 left-0 right-0 z-30 pointer-events-none flex items-center justify-between px-6 sm:px-12">
-        <button
-          onClick={() => goToSlide((activeIndex - 1 + SECTIONS.length) % SECTIONS.length)}
-          aria-label="Previous Flavor"
-          className="pointer-events-auto w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 hover:scale-105 active:scale-95 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-xl transition-all duration-300 ease-out cursor-pointer"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={() => {
-            if (activeIndex < SECTIONS.length - 1) {
-              goToSlide(activeIndex + 1);
-            } else {
-              onUnlockAndNext?.();
-            }
-          }}
-          aria-label="Next Flavor"
-          className="pointer-events-auto w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 hover:scale-105 active:scale-95 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-xl transition-all duration-300 ease-out cursor-pointer"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* ========================================================
-          BOTTOM STATUS BAR & NAVIGATION HUD
-          ======================================================== */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 w-full pb-8 px-6 sm:px-12 flex items-end justify-between pointer-events-none">
-        {/* Left: Flavor Counter (01 / 04) & Current Title */}
-        <div className="flex flex-col items-start gap-1">
-          <span className="text-white/40 text-[10px] tracking-widest uppercase font-mono">
-            FLAVOR SELECTION
-          </span>
-          <div className="flex items-baseline gap-1.5 text-white font-bold text-xl sm:text-2xl font-mono">
-            <span>{currentSection.number}</span>
-            <span className="text-white/30 text-sm font-normal">/</span>
-            <span className="text-white/40 text-sm font-normal">04</span>
-          </div>
-          <span
-            className="text-white/80 text-xs sm:text-sm font-semibold tracking-wide drop-shadow-sm mt-0.5"
-            style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
-          >
-            {currentSection.fullName}
-          </span>
-        </div>
-
-        {/* Center: Slide Switcher Dots */}
-        <div className="pointer-events-auto flex items-center gap-2.5 bg-black/40 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full shadow-2xl">
-          {SECTIONS.map((sec, idx) => {
-            const isActive = idx === activeIndex;
-            return (
-              <button
-                key={sec.id}
-                onClick={() => goToSlide(idx)}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
-                  isActive
-                    ? 'w-7 h-2 bg-white shadow-lg'
-                    : 'w-2 h-2 bg-white/40 hover:bg-white/80'
-                }`}
-                aria-label={`Jump to ${sec.fullName}`}
-                title={sec.fullName}
-              />
-            );
-          })}
-        </div>
-
-        {/* Right: Scroll to Next Section */}
-        <button
-          onClick={() => {
-            playChime();
-            onUnlockAndNext?.();
-          }}
-          className="pointer-events-auto flex items-center gap-2 text-white/70 hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-wider group"
-        >
-          <span className="hidden sm:inline font-medium">Next Section</span>
-          <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-white/25 border border-white/20 flex items-center justify-center transition-all group-hover:scale-105">
-            <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform animate-bounce" />
-          </div>
-        </button>
-      </div>
+      
     </section>
   );
 }
