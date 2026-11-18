@@ -213,12 +213,6 @@ export function JuiceScrollHero({
   onUnlockAndNext,
 }: JuiceScrollHeroProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({
-    0: 'Single',
-    1: 'Single',
-    2: 'Single',
-    3: 'Single',
-  });
 
   const heroRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -569,36 +563,7 @@ export function JuiceScrollHero({
               ))}
             </div>
 
-            {/* ====================================================
-                RIGHT SIDE: FLAVOR LABEL & ENLARGED PORTION PILLS
-                ==================================================== */}
-            <div className="absolute right-6 sm:right-12 lg:right-16 xl:right-24 top-1/2 -translate-y-1/2 z-30 flex flex-col items-end pointer-events-auto select-none">
-              <span className="text-white text-sm sm:text-base lg:text-lg xl:text-xl font-bold tracking-wide mb-4 drop-shadow-md">
-                {sec.flavorLabel}
-              </span>
 
-              <div className="flex items-center gap-2.5">
-                {['Single', 'Double', 'Pint'].map((size) => {
-                  const isSelected = selectedSizes[idx] === size;
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => {
-                        playScoopPop();
-                        setSelectedSizes((prev) => ({ ...prev, [idx]: size }));
-                      }}
-                      className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm lg:text-base font-bold tracking-wide transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? 'bg-white text-stone-900 shadow-2xl scale-105'
-                          : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/25'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         ))}
       </div>
