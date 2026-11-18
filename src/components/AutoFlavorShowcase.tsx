@@ -445,7 +445,7 @@ export function AutoFlavorShowcase({
               initial={{ opacity: 0.85, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.45 }}
-              className="w-[360px] sm:w-[500px] md:w-[620px] lg:w-[740px] xl:w-[820px] max-w-[90vw] h-auto object-contain select-none drop-shadow-[0_35px_60px_rgba(0,0,0,0.55)] cursor-pointer pointer-events-auto"
+              className="w-[320px] sm:w-[460px] md:w-[560px] lg:w-[660px] xl:w-[740px] max-w-[85vw] h-auto object-contain select-none drop-shadow-[0_35px_60px_rgba(0,0,0,0.55)] cursor-pointer pointer-events-auto"
               onClick={() => {
                 if (scrollProgress < 0.25) {
                   nextSlide();
@@ -459,7 +459,7 @@ export function AutoFlavorShowcase({
 
         {/* Bottom-Left Flavor Editorial Card */}
         <div
-          className="absolute left-6 sm:left-12 lg:left-16 bottom-8 sm:bottom-12 z-30 max-w-md sm:max-w-xl pointer-events-none text-left will-change-transform transition-opacity duration-300"
+          className="absolute left-6 sm:left-12 lg:left-16 bottom-8 sm:bottom-12 z-30 max-w-sm sm:max-w-md pointer-events-none text-left will-change-transform transition-opacity duration-300"
           style={{
             opacity: Math.max(0, 1 - scrollProgress * 1.8),
           }}
@@ -473,14 +473,14 @@ export function AutoFlavorShowcase({
               exit="exit"
             >
               <h2
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white tracking-tight leading-none mb-4 drop-shadow-lg"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-none mb-3 drop-shadow-md"
                 style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
               >
                 {activeSlide.title}
               </h2>
 
               <p
-                className="text-base sm:text-lg lg:text-xl text-white/95 leading-relaxed font-normal drop-shadow-md max-w-md sm:max-w-lg"
+                className="text-xs sm:text-sm lg:text-[0.95rem] text-white/90 leading-relaxed font-normal drop-shadow-sm max-w-sm sm:max-w-md"
                 style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
               >
                 {activeSlide.desc}
@@ -499,17 +499,17 @@ export function AutoFlavorShowcase({
           <button
             onClick={prevSlide}
             aria-label="Previous Flavor"
-            className="w-14 h-14 rounded-full border-2 border-white text-white hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
+            className="w-12 h-12 rounded-full border border-white text-white hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
           >
-            <ChevronLeft className="w-7 h-7" />
+            <ChevronLeft className="w-6 h-6" />
           </button>
 
           <button
             onClick={nextSlide}
             aria-label="Next Flavor"
-            className="w-14 h-14 rounded-full bg-white/40 hover:bg-white/60 active:scale-90 text-white flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
+            className="w-12 h-12 rounded-full bg-white/40 hover:bg-white/60 active:scale-90 text-white flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
           >
-            <ChevronRight className="w-7 h-7" />
+            <ChevronRight className="w-6 h-6" />
           </button>
         </div>
 
