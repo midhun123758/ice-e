@@ -1,15 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Sparkles, ArrowDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 
 interface ChocolateScrollExperienceProps {
-  currentFlavor?: {
-    id: string;
-    name: string;
-    color: string;
-    gradientStops: [string, string];
-    notes: string[];
-    description: string;
-  };
   isActive?: boolean;
   isAutoPlay?: boolean;
   scrollProgress?: number;
@@ -17,20 +9,18 @@ interface ChocolateScrollExperienceProps {
   onRewindToStart?: () => void;
 }
 
-// 58 High-Resolution Lossless PNG Frames (000 to 057)
 const TOTAL_FRAMES = 58;
 
-// Pure artisanal Belgian Chocolate Pouring Theme
 const THEME = {
+  eyebrow: '#5C3826', // Warm artisanal cacao
   title: '#241005', // Deep Belgian dark chocolate
-  eyebrow: '#512A1C',
-  dot: '#512A1C',
-  body: 'rgba(57, 29, 18, 0.92)',
-  notes: 'rgba(81, 42, 28, 0.85)',
+  body: '#3A2012', // Rich melted chocolate
+  notes: '#6D4430', // Milk chocolate highlight
+  dot: '#3D1C06',
 };
 
 export function ChocolateScrollExperience({
-  isActive = true,
+  isActive = false,
   isAutoPlay = false,
   scrollProgress,
   onComplete,
@@ -39,13 +29,10 @@ export function ChocolateScrollExperience({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
-  const velocityRef = useRef(0);
-  const lastScrollTimeRef = useRef(0);
-  const scrollDirectionRef = useRef(0);
-  const CRUISING_SPEED = 0.85; // Faster, ultra-responsive silky pour (~1.1s full pour)
-  const SCROLL_ACTIVE_TIMEOUT = 280; // Crisp active window for fluid continuous frame delivery
+  const targetFrameRef = useRef(0);
   const lastDrawnFrameRef = useRef(-1);
   const rafIdRef = useRef<number | null>(null);
+  const isLoopRunningRef = useRef(false);
   const isCooldownRef = useRef(false);
   const endOverscrollRef = useRef(0);
   const startOverscrollRef = useRef(0);
@@ -56,39 +43,26 @@ export function ChocolateScrollExperience({
     return `/frames/Chocolate_pouring_over_ice_cream_9be1800c_1080p_${numStr}.png`;
   };
 
-  // Progressive frame loader: Load frame 0 instantly, then stream remaining frames when near viewport
+  // Eager preloader for all 58 frames
   const isLoadedNearRef = useRef(false);
 
   const preloadRemainingFrames = () => {
     if (isLoadedNearRef.current) return;
     isLoadedNearRef.current = true;
 
-    // Load in chunks to prevent network choking
-    let i = 1;
-    const loadNextBatch = () => {
-      const limit = Math.min(TOTAL_FRAMES, i + 8);
-      for (; i < limit; i++) {
-        if (!imagesRef.current[i]) {
-          const img = new Image();
-          img.src = getFrameUrl(i);
-          imagesRef.current[i] = img;
-        }
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      if (!imagesRef.current[i]) {
+        const img = new Image();
+        img.src = getFrameUrl(i);
+        imagesRef.current[i] = img;
       }
-      if (i < TOTAL_FRAMES) {
-        if ('requestIdleCallback' in window) {
-          (window as any).requestIdleCallback(loadNextBatch);
-        } else {
-          setTimeout(loadNextBatch, 50);
-        }
-      }
-    };
-    loadNextBatch();
+    }
   };
 
-  // Preload frame 0 immediately, and watch for viewport proximity
+  // Preload frame 0 immediately, and eagerly preload all frames
   useEffect(() => {
     currentFrameRef.current = 0;
-    velocityRef.current = 0;
+    targetFrameRef.current = 0;
     lastDrawnFrameRef.current = -1;
     isLoadedNearRef.current = false;
 
@@ -100,14 +74,10 @@ export function ChocolateScrollExperience({
         renderFrame(0);
       }
     };
-    imagesRef.current = [poster];
+    imagesRef.current[0] = poster;
 
-    // If already active or scroll progress active, preload all
-    if (isActive || scrollProgress !== undefined) {
-      preloadRemainingFrames();
-    }
+    preloadRemainingFrames();
 
-    // IntersectionObserver to preload frames just before user scrolls into Section 2
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -119,20 +89,23 @@ export function ChocolateScrollExperience({
           }
         });
       },
-      { rootMargin: '600px 0px' }
+      { rootMargin: '800px 0px' }
     );
 
     observer.observe(canvas);
     return () => observer.disconnect();
   }, []);
 
-  // Frame rendering on native 1920x1080 canvas
+  // Frame rendering on native 1920x1080 canvas with high-quality smoothing
   const lastStateFrameRef = useRef(0);
   const renderFrame = (frameIndex: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     const clampedIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameIndex)));
 
@@ -153,7 +126,6 @@ export function ChocolateScrollExperience({
     ctx.drawImage(img, 0, 0, 1920, 1080);
     lastDrawnFrameRef.current = clampedIndex;
 
-    // Optimized state update: Only update React state when crossing key thresholds to eliminate UI stutter
     const isBoundary = clampedIndex === 0 || clampedIndex >= TOTAL_FRAMES - 2;
     const isMajorStep = Math.abs(clampedIndex - lastStateFrameRef.current) >= 4;
 
@@ -171,7 +143,7 @@ export function ChocolateScrollExperience({
       startOverscrollRef.current = 0;
       setTimeout(() => {
         isCooldownRef.current = false;
-      }, 500);
+      }, 450);
       renderFrame(currentFrameRef.current);
     }
   }, [isActive]);
@@ -183,43 +155,27 @@ export function ChocolateScrollExperience({
       TOTAL_FRAMES - 1,
       Math.max(0, Math.round(scrollProgress * (TOTAL_FRAMES - 1)))
     );
-    currentFrameRef.current = targetFrame;
-    renderFrame(targetFrame);
+    targetFrameRef.current = targetFrame;
+    startLoop();
   }, [scrollProgress]);
 
-  // On-demand silky smooth liquid inertia animation loop (stops when idle to eliminate CPU drain)
-  const isLoopRunningRef = useRef(false);
-
+  // Luxury Viscous Liquid Inertia Loop (Lerp Interpolation)
   const startLoop = () => {
     if (isLoopRunningRef.current) return;
     isLoopRunningRef.current = true;
 
+    const LERP_SPEED = 0.14; // Weighted liquid physics
+
     const updateLoop = () => {
-      const now = performance.now();
-      const isActivelyScrolling = now - lastScrollTimeRef.current < SCROLL_ACTIVE_TIMEOUT;
+      const diff = targetFrameRef.current - currentFrameRef.current;
 
-      if (isActivelyScrolling && scrollDirectionRef.current !== 0) {
-        const targetVelocity = CRUISING_SPEED * scrollDirectionRef.current;
-        velocityRef.current += (targetVelocity - velocityRef.current) * 0.24;
-      } else {
-        velocityRef.current += (0 - velocityRef.current) * 0.16;
-      }
-
-      if (Math.abs(velocityRef.current) > 0.002) {
-        currentFrameRef.current += velocityRef.current;
-
-        if (currentFrameRef.current <= 0) {
-          currentFrameRef.current = 0;
-          velocityRef.current = 0;
-        } else if (currentFrameRef.current >= TOTAL_FRAMES - 1) {
-          currentFrameRef.current = TOTAL_FRAMES - 1;
-          velocityRef.current = 0;
-        }
-
+      if (Math.abs(diff) > 0.008) {
+        currentFrameRef.current += diff * LERP_SPEED;
         renderFrame(currentFrameRef.current);
         rafIdRef.current = requestAnimationFrame(updateLoop);
       } else {
-        velocityRef.current = 0;
+        currentFrameRef.current = targetFrameRef.current;
+        renderFrame(currentFrameRef.current);
         isLoopRunningRef.current = false;
         rafIdRef.current = null;
       }
@@ -247,22 +203,20 @@ export function ChocolateScrollExperience({
 
     let autoRaf: number;
     let completeTimeout: ReturnType<typeof setTimeout>;
-    const speed = 0.58; // Fast, silky molten enrobe (~1.6 seconds)
+    const speed = 0.55;
 
     const autoStep = () => {
-      if (currentFrameRef.current < TOTAL_FRAMES - 1) {
-        currentFrameRef.current = Math.min(TOTAL_FRAMES - 1, currentFrameRef.current + speed);
-        renderFrame(currentFrameRef.current);
+      if (targetFrameRef.current < TOTAL_FRAMES - 1) {
+        targetFrameRef.current = Math.min(TOTAL_FRAMES - 1, targetFrameRef.current + speed);
+        startLoop();
         autoRaf = requestAnimationFrame(autoStep);
       } else {
-        // Molten enrobing completed! Brief pause to admire the shell, then advance
         completeTimeout = setTimeout(() => {
           onComplete?.();
-        }, 700);
+        }, 800);
       }
     };
 
-    // Small initial delay so card modal settles into view before pouring begins
     const startDelay = setTimeout(() => {
       autoRaf = requestAnimationFrame(autoStep);
     }, 300);
@@ -283,29 +237,20 @@ export function ChocolateScrollExperience({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (isCooldownRef.current) return;
-      startLoop();
 
-      const current = currentFrameRef.current;
+      const delta = e.deltaY;
+      const SENSITIVITY = 0.045; // Silky fluid control rate
 
-      if (e.deltaY > 0) {
-        // Scrolling DOWN: Advance the molten pouring animation
+      if (delta > 0) {
         startOverscrollRef.current = 0;
 
-        if (current < TOTAL_FRAMES - 1) {
-          scrollDirectionRef.current = 1;
-          lastScrollTimeRef.current = performance.now();
-          currentFrameRef.current = Math.min(
+        if (targetFrameRef.current < TOTAL_FRAMES - 1) {
+          targetFrameRef.current = Math.min(
             TOTAL_FRAMES - 1,
-            currentFrameRef.current + Math.min(2.0, Math.max(0.4, Math.abs(e.deltaY) * 0.015))
+            targetFrameRef.current + Math.min(3.0, Math.max(0.5, Math.abs(delta) * SENSITIVITY))
           );
-          renderFrame(currentFrameRef.current);
+          startLoop();
         } else {
-          // Firmly stop on the final image! Do not scroll away.
-          currentFrameRef.current = TOTAL_FRAMES - 1;
-          velocityRef.current = 0;
-          renderFrame(TOTAL_FRAMES - 1);
-
-          // Deliberate extra downward scrolling continues to Flavors
           endOverscrollRef.current += 1;
           if (endOverscrollRef.current >= 4) {
             isCooldownRef.current = true;
@@ -316,24 +261,16 @@ export function ChocolateScrollExperience({
             }, 800);
           }
         }
-      } else if (e.deltaY < 0) {
-        // Scrolling UP: Rewind/unpour the chocolate
+      } else if (delta < 0) {
         endOverscrollRef.current = 0;
 
-        if (current > 0.4) {
-          scrollDirectionRef.current = -1;
-          lastScrollTimeRef.current = performance.now();
-          currentFrameRef.current = Math.max(
+        if (targetFrameRef.current > 0) {
+          targetFrameRef.current = Math.max(
             0,
-            currentFrameRef.current - Math.min(2.0, Math.max(0.4, Math.abs(e.deltaY) * 0.015))
+            targetFrameRef.current - Math.min(3.0, Math.max(0.5, Math.abs(delta) * SENSITIVITY))
           );
-          renderFrame(currentFrameRef.current);
+          startLoop();
         } else {
-          // Firmly stop at frame 0
-          currentFrameRef.current = 0;
-          velocityRef.current = 0;
-          renderFrame(0);
-
           startOverscrollRef.current += 1;
           if (startOverscrollRef.current >= 4) {
             isCooldownRef.current = true;
@@ -354,30 +291,20 @@ export function ChocolateScrollExperience({
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       if (isCooldownRef.current) return;
-      startLoop();
 
       const currentY = e.touches[0].clientY;
       const deltaY = touchStartY - currentY;
       touchStartY = currentY;
 
-      const current = currentFrameRef.current;
-
-      if (deltaY > 2) {
+      if (deltaY > 1.5) {
         startOverscrollRef.current = 0;
-        if (current < TOTAL_FRAMES - 1) {
-          scrollDirectionRef.current = 1;
-          lastScrollTimeRef.current = performance.now();
-          currentFrameRef.current = Math.min(
+        if (targetFrameRef.current < TOTAL_FRAMES - 1) {
+          targetFrameRef.current = Math.min(
             TOTAL_FRAMES - 1,
-            currentFrameRef.current + Math.min(2.2, deltaY * 0.08)
+            targetFrameRef.current + Math.min(2.5, Math.abs(deltaY) * 0.08)
           );
-          renderFrame(currentFrameRef.current);
+          startLoop();
         } else {
-          // Firmly stop on the final image
-          currentFrameRef.current = TOTAL_FRAMES - 1;
-          velocityRef.current = 0;
-          renderFrame(TOTAL_FRAMES - 1);
-
           endOverscrollRef.current += 1;
           if (endOverscrollRef.current >= 4) {
             isCooldownRef.current = true;
@@ -388,21 +315,15 @@ export function ChocolateScrollExperience({
             }, 800);
           }
         }
-      } else if (deltaY < -2) {
+      } else if (deltaY < -1.5) {
         endOverscrollRef.current = 0;
-        if (current > 0.4) {
-          scrollDirectionRef.current = -1;
-          lastScrollTimeRef.current = performance.now();
-          currentFrameRef.current = Math.max(
+        if (targetFrameRef.current > 0) {
+          targetFrameRef.current = Math.max(
             0,
-            currentFrameRef.current - Math.min(2.2, Math.abs(deltaY) * 0.08)
+            targetFrameRef.current - Math.min(2.5, Math.abs(deltaY) * 0.08)
           );
-          renderFrame(currentFrameRef.current);
+          startLoop();
         } else {
-          currentFrameRef.current = 0;
-          velocityRef.current = 0;
-          renderFrame(0);
-
           startOverscrollRef.current += 1;
           if (startOverscrollRef.current >= 4) {
             isCooldownRef.current = true;
@@ -507,3 +428,5 @@ export function ChocolateScrollExperience({
     </div>
   );
 }
+
+export default ChocolateScrollExperience;

@@ -215,7 +215,8 @@ export function JuiceScrollHero({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const heroRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
+  const bgRefA = useRef<HTMLDivElement>(null);
+  const bgRefB = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const bowlRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -240,27 +241,39 @@ export function JuiceScrollHero({
     const origin = sectionRefs.current[oldIndex];
     const dest = sectionRefs.current[newIndex];
     const container = containerRef.current;
-    const bg = bgRef.current;
+    const bgA = bgRefA.current;
+    const bgB = bgRefB.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
-    const SLOW_SMOOTH_DURATION = 1.35; // Luxurious, slow, silky-smooth glide
+    const SLOW_SMOOTH_DURATION = 1.45; // Silky-smooth, calm, elegant glide
 
-    // 1. Morph background radial gradient with long, smooth blend
-    if (bg) {
-      gsap.to(bg, {
-        backgroundImage: newGradient,
-        duration: 1.2,
-        ease: 'power2.inOut',
-      });
+    // 1. Dual-layer pure opacity crossfade for radial background (zero browser repaint stutter)
+    if (bgA && bgB) {
+      bgB.style.backgroundImage = newGradient;
+      gsap.fromTo(
+        bgB,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 1.35,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            if (bgA && bgB) {
+              bgA.style.backgroundImage = newGradient;
+              bgB.style.opacity = '0';
+            }
+          },
+        }
+      );
     }
 
     // 2. Scale down and soften origin section gently
     if (origin) {
       gsap.to(origin, {
-        scale: 0.75,
-        opacity: 0.35,
+        scale: 0.8,
+        opacity: 0.3,
         duration: SLOW_SMOOTH_DURATION,
-        ease: 'power3.inOut',
+        ease: 'power2.inOut',
       });
     }
 
@@ -269,7 +282,7 @@ export function JuiceScrollHero({
       gsap.to(container, {
         y: `${-newIndex * 100}vh`,
         duration: SLOW_SMOOTH_DURATION,
-        ease: 'power3.inOut',
+        ease: 'power2.inOut',
         onComplete: () => {
           setCurrentIndex(newIndex);
           isAnimatingRef.current = false;
@@ -277,16 +290,16 @@ export function JuiceScrollHero({
       });
     }
 
-    // 4. Scale up destination section with a long, elegant glide into full view
+    // 4. Scale up destination section with an elegant glide into full view
     if (dest) {
       gsap.fromTo(
         dest,
-        { scale: 0.75, opacity: 0.35 },
+        { scale: 0.8, opacity: 0.3 },
         {
           scale: 1,
           opacity: 1,
           duration: SLOW_SMOOTH_DURATION,
-          ease: 'power3.inOut',
+          ease: 'power2.inOut',
         }
       );
     }
@@ -493,15 +506,20 @@ export function JuiceScrollHero({
       }}
     >
       {/* ========================================================
-          BACKGROUND GRADIENT CANVAS
+          BACKGROUND GRADIENT CANVAS (DUAL-LAYER OPACITY CROSSFADE)
           ======================================================== */}
       <div
-        ref={bgRef}
-        id="bg"
-        className="absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-300"
+        ref={bgRefA}
+        id="bg-a"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
         style={{
           backgroundImage: SECTIONS[0].gradient,
         }}
+      />
+      <div
+        ref={bgRefB}
+        id="bg-b"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-0 will-change-[opacity]"
       />
 
       {/* Atmospheric Radial Vignette */}
