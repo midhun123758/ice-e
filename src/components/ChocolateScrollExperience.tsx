@@ -135,15 +135,12 @@ export function ChocolateScrollExperience({
     }
   };
 
-  // Reset or initialize frame when section becomes active
+  // Reset or initialize frame when section becomes active (instantly responsive, no cooldown lockout)
   useEffect(() => {
     if (isActive) {
-      isCooldownRef.current = true;
+      isCooldownRef.current = false;
       endOverscrollRef.current = 0;
       startOverscrollRef.current = 0;
-      setTimeout(() => {
-        isCooldownRef.current = false;
-      }, 450);
       renderFrame(currentFrameRef.current);
     }
   }, [isActive]);
@@ -239,7 +236,7 @@ export function ChocolateScrollExperience({
       if (isCooldownRef.current) return;
 
       const delta = e.deltaY;
-      const SENSITIVITY = 0.045; // Silky fluid control rate
+      const SENSITIVITY = 0.075; // Responsive, buttery fluid control rate
 
       if (delta > 0) {
         startOverscrollRef.current = 0;
@@ -247,18 +244,19 @@ export function ChocolateScrollExperience({
         if (targetFrameRef.current < TOTAL_FRAMES - 1) {
           targetFrameRef.current = Math.min(
             TOTAL_FRAMES - 1,
-            targetFrameRef.current + Math.min(3.0, Math.max(0.5, Math.abs(delta) * SENSITIVITY))
+            targetFrameRef.current + Math.min(5.0, Math.max(1.2, Math.abs(delta) * SENSITIVITY))
           );
           startLoop();
         } else {
+          // At final frame: 2 deliberate downward scrolls smoothly advance to Flavors
           endOverscrollRef.current += 1;
-          if (endOverscrollRef.current >= 4) {
+          if (endOverscrollRef.current >= 2) {
             isCooldownRef.current = true;
             onComplete?.();
             setTimeout(() => {
               isCooldownRef.current = false;
               endOverscrollRef.current = 0;
-            }, 800);
+            }, 600);
           }
         }
       } else if (delta < 0) {
@@ -267,18 +265,19 @@ export function ChocolateScrollExperience({
         if (targetFrameRef.current > 0) {
           targetFrameRef.current = Math.max(
             0,
-            targetFrameRef.current - Math.min(3.0, Math.max(0.5, Math.abs(delta) * SENSITIVITY))
+            targetFrameRef.current - Math.min(5.0, Math.max(1.2, Math.abs(delta) * SENSITIVITY))
           );
           startLoop();
         } else {
+          // At frame 0: 2 deliberate upward scrolls smoothly return to Hero
           startOverscrollRef.current += 1;
-          if (startOverscrollRef.current >= 4) {
+          if (startOverscrollRef.current >= 2) {
             isCooldownRef.current = true;
             onRewindToStart?.();
             setTimeout(() => {
               isCooldownRef.current = false;
               startOverscrollRef.current = 0;
-            }, 800);
+            }, 600);
           }
         }
       }
@@ -296,42 +295,42 @@ export function ChocolateScrollExperience({
       const deltaY = touchStartY - currentY;
       touchStartY = currentY;
 
-      if (deltaY > 1.5) {
+      if (deltaY > 1.2) {
         startOverscrollRef.current = 0;
         if (targetFrameRef.current < TOTAL_FRAMES - 1) {
           targetFrameRef.current = Math.min(
             TOTAL_FRAMES - 1,
-            targetFrameRef.current + Math.min(2.5, Math.abs(deltaY) * 0.08)
+            targetFrameRef.current + Math.min(4.0, Math.abs(deltaY) * 0.12)
           );
           startLoop();
         } else {
           endOverscrollRef.current += 1;
-          if (endOverscrollRef.current >= 4) {
+          if (endOverscrollRef.current >= 2) {
             isCooldownRef.current = true;
             onComplete?.();
             setTimeout(() => {
               isCooldownRef.current = false;
               endOverscrollRef.current = 0;
-            }, 800);
+            }, 600);
           }
         }
-      } else if (deltaY < -1.5) {
+      } else if (deltaY < -1.2) {
         endOverscrollRef.current = 0;
         if (targetFrameRef.current > 0) {
           targetFrameRef.current = Math.max(
             0,
-            targetFrameRef.current - Math.min(2.5, Math.abs(deltaY) * 0.08)
+            targetFrameRef.current - Math.min(4.0, Math.abs(deltaY) * 0.12)
           );
           startLoop();
         } else {
           startOverscrollRef.current += 1;
-          if (startOverscrollRef.current >= 4) {
+          if (startOverscrollRef.current >= 2) {
             isCooldownRef.current = true;
             onRewindToStart?.();
             setTimeout(() => {
               isCooldownRef.current = false;
               startOverscrollRef.current = 0;
-            }, 800);
+            }, 600);
           }
         }
       }

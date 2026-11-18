@@ -327,9 +327,9 @@ export function App() {
       if (pourContainerRef.current) {
         if (lenis) {
           lenis.scrollTo(pourContainerRef.current, {
-            duration: 1.2,
+            duration: 0.85,
             onComplete: () => {
-              // Lock onto Section 2 when arrived via navigation
+              // Lock onto Section 2 immediately and smoothly when arrived via navigation
               if (lenisRef.current) lenisRef.current.stop();
               setIsPourLocked(true);
               isPourLockedRef.current = true;
@@ -368,7 +368,7 @@ export function App() {
 
     setTimeout(() => {
       isNavigatingRef.current = false;
-    }, 1300);
+    }, 900);
   };
 
   useEffect(() => {

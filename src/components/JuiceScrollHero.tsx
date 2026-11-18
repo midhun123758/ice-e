@@ -373,7 +373,7 @@ export function JuiceScrollHero({
         playChime();
         onUnlockAndNext();
       }
-    }, 450);
+    }, 120);
 
     // 4. Restore original layout state after scroll has safely transitioned to Section 2
     setTimeout(() => {
