@@ -77,14 +77,14 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute bottom-5 right-5 sm:bottom-8 sm:right-8 z-30 max-w-xs sm:max-w-md text-right pointer-events-auto select-text"
+        className="absolute bottom-6 right-6 sm:bottom-10 sm:right-12 z-30 max-w-sm sm:max-w-lg lg:max-w-2xl text-right pointer-events-auto select-text"
       >
         {/* Soft, natural shadow layer behind words to completely obscure the Gemini watermark */}
-        <div className="absolute -inset-8 bg-black/60 blur-2xl rounded-full pointer-events-none -z-10" />
+        <div className="absolute -inset-10 bg-black/70 blur-3xl rounded-full pointer-events-none -z-10" />
 
         {/* Title in iconic Fredoka bold font */}
         <h3
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight mb-2 drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]"
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight mb-3 drop-shadow-[0_4px_25px_rgba(0,0,0,0.95)]"
           style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
         >
           The Midnight Crunch
@@ -92,7 +92,7 @@ export function VideoScrollExperience({ onGoToAbout }: VideoScrollExperienceProp
 
         {/* Narrative Description in Fredoka font */}
         <p
-          className="text-xs sm:text-sm lg:text-[15px] text-white/95 font-normal leading-relaxed sm:leading-relaxed drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]"
+          className="text-base sm:text-lg lg:text-xl xl:text-2xl text-white/95 font-medium leading-relaxed sm:leading-relaxed drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]"
           style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
         >
           Slow-churned sweet cream enrobed in a tempered shell of 72% Belgian dark cocoa, explosive roasted hazelnut shards, and molten caramel rivers.

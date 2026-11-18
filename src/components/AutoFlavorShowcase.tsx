@@ -459,7 +459,7 @@ export function AutoFlavorShowcase({
 
         {/* Bottom-Left Flavor Editorial Card */}
         <div
-          className="absolute left-6 sm:left-12 lg:left-16 bottom-8 sm:bottom-12 z-30 max-w-sm sm:max-w-md pointer-events-none text-left will-change-transform transition-opacity duration-300"
+          className="absolute left-6 sm:left-12 lg:left-16 bottom-8 sm:bottom-12 z-30 max-w-md sm:max-w-xl pointer-events-none text-left will-change-transform transition-opacity duration-300"
           style={{
             opacity: Math.max(0, 1 - scrollProgress * 1.8),
           }}
@@ -473,13 +473,18 @@ export function AutoFlavorShowcase({
               exit="exit"
             >
               <h2
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-none mb-3 drop-shadow-md"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white tracking-tight leading-none mb-4 drop-shadow-lg"
                 style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
               >
                 {activeSlide.title}
               </h2>
 
-              
+              <p
+                className="text-base sm:text-lg lg:text-xl text-white/95 leading-relaxed font-normal drop-shadow-md max-w-md sm:max-w-lg"
+                style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
+              >
+                {activeSlide.desc}
+              </p>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -494,17 +499,17 @@ export function AutoFlavorShowcase({
           <button
             onClick={prevSlide}
             aria-label="Previous Flavor"
-            className="w-12 h-12 rounded-full border border-white text-white hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
+            className="w-14 h-14 rounded-full border-2 border-white text-white hover:bg-white/20 active:scale-90 flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
 
           <button
             onClick={nextSlide}
             aria-label="Next Flavor"
-            className="w-12 h-12 rounded-full bg-white/40 hover:bg-white/60 active:scale-90 text-white flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
+            className="w-14 h-14 rounded-full bg-white/40 hover:bg-white/60 active:scale-90 text-white flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-sm cursor-pointer"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-7 h-7" />
           </button>
         </div>
 
@@ -559,10 +564,10 @@ export function AutoFlavorShowcase({
 
         {/* Right Column: ICE - E Heritage Story Description */}
         <div className="w-full lg:w-1/2 h-full flex items-center justify-center lg:justify-start pointer-events-auto z-10">
-          <div className="max-w-xl flex flex-col items-center lg:items-start text-center lg:text-left select-text">
+          <div className="max-w-2xl flex flex-col items-center lg:items-start text-center lg:text-left select-text">
             {/* Paragraph 1 */}
             <p
-              className="text-base sm:text-lg lg:text-[1.18rem] text-white font-normal leading-relaxed sm:leading-loose tracking-wide mb-6 drop-shadow-sm"
+              className="text-xl sm:text-2xl lg:text-3xl xl:text-[2rem] text-white font-normal leading-relaxed sm:leading-relaxed tracking-wide mb-6 drop-shadow-md"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
               Born from an obsession with cold science and sensory contrast, ICE - E redefines small-batch artisanal frozen confectionery. Every scoop is an exploration of pure textures, natural fruits, and molten Belgian drizzles crafted by confectionery artisans.
@@ -570,7 +575,7 @@ export function AutoFlavorShowcase({
 
             {/* Paragraph 2 */}
             <p
-              className="text-sm sm:text-base lg:text-[1.05rem] text-white/90 font-normal leading-relaxed sm:leading-loose tracking-wide mb-8 drop-shadow-sm"
+              className="text-base sm:text-lg lg:text-xl xl:text-[1.35rem] text-white/90 font-normal leading-relaxed sm:leading-relaxed tracking-wide mb-8 drop-shadow-md"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
               ICE - E owes its signature smoothness to slow micro-batch churning, blending organic whole milk with real botanical extracts and crisp fruit wheels. Revered by dessert connoisseurs for unrivaled freshness, delicate crystallization-free texture, and world-class culinary craft.
@@ -583,7 +588,7 @@ export function AutoFlavorShowcase({
                 if (onGoToExperience) onGoToExperience();
                 else onGoToAbout?.();
               }}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-[#120803] hover:bg-white/90 font-medium text-sm transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg cursor-pointer group"
+              className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full bg-white text-[#120803] hover:bg-white/90 font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl cursor-pointer group"
             >
               <span>Explore The Crunch</span>
               <ArrowDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
