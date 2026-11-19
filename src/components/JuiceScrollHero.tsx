@@ -223,7 +223,7 @@ export function JuiceScrollHero({
 
   // Animation Lock Flag
   const isAnimatingRef = useRef(false);
-  const finalFlavorReadyRef = useRef(false);
+  const animSafetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentIndexRef = useRef(0);
   currentIndexRef.current = currentIndex;
 
@@ -236,9 +236,14 @@ export function JuiceScrollHero({
 
     const oldIndex = currentIndexRef.current;
     isAnimatingRef.current = true;
-    finalFlavorReadyRef.current = false;
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
+
+    // Watchdog safety timer: guarantee isAnimatingRef can NEVER stay stuck true
+    if (animSafetyRef.current) clearTimeout(animSafetyRef.current);
+    animSafetyRef.current = setTimeout(() => {
+      isAnimatingRef.current = false;
+    }, 1800);
 
     playScoopPop();
 
@@ -294,14 +299,13 @@ export function JuiceScrollHero({
         duration: SLOW_SMOOTH_DURATION,
         ease: 'power2.inOut',
         onComplete: () => {
-          isAnimatingRef.current = false;
           if (newIndex === SECTIONS.length - 1) {
-            // Final flavor arrived and settled! Settle delay ensures user sees Chocolate before dropping
+            // Settle on final flavor (Chocolate) for 350ms so user sees it rest before next scroll can drop
             setTimeout(() => {
-              finalFlavorReadyRef.current = true;
-            }, 500);
+              isAnimatingRef.current = false;
+            }, 350);
           } else {
-            finalFlavorReadyRef.current = false;
+            isAnimatingRef.current = false;
           }
         },
       });
@@ -328,7 +332,12 @@ export function JuiceScrollHero({
   const dropToNextSection = useCallback(() => {
     if (isAnimatingRef.current) return;
     isAnimatingRef.current = true;
-    finalFlavorReadyRef.current = false;
+
+    // Watchdog safety timer
+    if (animSafetyRef.current) clearTimeout(animSafetyRef.current);
+    animSafetyRef.current = setTimeout(() => {
+      isAnimatingRef.current = false;
+    }, 2200);
 
     playScoopPop();
 
@@ -416,7 +425,7 @@ export function JuiceScrollHero({
 
     const handleWheel = (e: WheelEvent) => {
       if (!isLocked) return;
-      if (window.scrollY > 20) return;
+      if (window.scrollY > window.innerHeight * 0.4) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -428,24 +437,22 @@ export function JuiceScrollHero({
       if (wheelTimeout) clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
         wheelAccum = 0;
-      }, 200);
+      }, 150);
 
-      const THRESHOLD = 50;
+      const THRESHOLD = 35;
 
       if (wheelAccum > THRESHOLD) {
         wheelAccum = 0;
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
-        } else if (finalFlavorReadyRef.current) {
-          // Only after 4th flavor has fully arrived and settled: drop down smoothly into Section 2
+        } else {
           dropToNextSection();
         }
       } else if (wheelAccum < -THRESHOLD) {
         wheelAccum = 0;
         const cur = currentIndexRef.current;
         if (cur > 0) {
-          finalFlavorReadyRef.current = false;
           goToSlide(cur - 1);
         }
       }
@@ -454,21 +461,20 @@ export function JuiceScrollHero({
     // Keyboard arrow / Page navigation
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isLocked || isAnimatingRef.current) return;
-      if (window.scrollY > 20) return;
+      if (window.scrollY > window.innerHeight * 0.4) return;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
-        } else if (finalFlavorReadyRef.current) {
+        } else {
           dropToNextSection();
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         const cur = currentIndexRef.current;
         if (cur > 0) {
-          finalFlavorReadyRef.current = false;
           goToSlide(cur - 1);
         }
       }
@@ -482,23 +488,22 @@ export function JuiceScrollHero({
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!isLocked || isAnimatingRef.current) return;
-      if (window.scrollY > 20) return;
+      if (window.scrollY > window.innerHeight * 0.4) return;
 
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
-      if (Math.abs(deltaY) > 35) {
+      if (Math.abs(deltaY) > 30) {
         if (deltaY > 0) {
           const cur = currentIndexRef.current;
           if (cur < SECTIONS.length - 1) {
             goToSlide(cur + 1);
-          } else if (finalFlavorReadyRef.current) {
+          } else {
             dropToNextSection();
           }
         } else {
           const cur = currentIndexRef.current;
           if (cur > 0) {
-            finalFlavorReadyRef.current = false;
             goToSlide(cur - 1);
           }
         }
