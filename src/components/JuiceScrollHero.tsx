@@ -249,7 +249,7 @@ export function JuiceScrollHero({
     const bgB = bgRefB.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
-    const SLOW_SMOOTH_DURATION = 1.0; // Calm, elegant glide
+    const SLOW_SMOOTH_DURATION = 0.95; // Calm, elegant glide
 
     // Kill any active tweens on affected elements to prevent conflicts
     if (container) gsap.killTweensOf(container);
@@ -265,7 +265,7 @@ export function JuiceScrollHero({
         { opacity: 0 },
         {
           opacity: 1,
-          duration: 0.9,
+          duration: 0.85,
           ease: 'power2.inOut',
           onComplete: () => {
             if (bgA && bgB) {
@@ -296,10 +296,10 @@ export function JuiceScrollHero({
         onComplete: () => {
           isAnimatingRef.current = false;
           if (newIndex === SECTIONS.length - 1) {
-            // Final flavor arrived! Small settle delay so residual scroll doesn't immediately drop
+            // Final flavor arrived and settled! Settle delay ensures user sees Chocolate before dropping
             setTimeout(() => {
               finalFlavorReadyRef.current = true;
-            }, 300);
+            }, 500);
           } else {
             finalFlavorReadyRef.current = false;
           }
@@ -338,15 +338,15 @@ export function JuiceScrollHero({
     // GSAP Timeline for the smooth bowl descent into Section 2
     const tl = gsap.timeline();
 
-    // 1. The chocolate bowl drops down to the bottom smoothly (no tilt, smooth glide)
+    // 1. The chocolate bowl drops down to the bottom smoothly
     if (activeBowl) {
       gsap.killTweensOf(activeBowl);
       tl.to(
         activeBowl,
         {
-          y: '75vh',
-          scale: 0.96,
-          duration: 0.9,
+          y: '105vh',
+          scale: 0.94,
+          duration: 0.85,
           ease: 'power2.inOut',
         },
         0
@@ -364,7 +364,7 @@ export function JuiceScrollHero({
         {
           y: -40,
           opacity: 0,
-          duration: 0.55,
+          duration: 0.5,
           ease: 'power2.out',
         },
         0
@@ -372,22 +372,22 @@ export function JuiceScrollHero({
       tl.to(
         ings,
         {
-          y: '45vh',
+          y: '80vh',
           opacity: 0,
-          duration: 0.75,
+          duration: 0.8,
           ease: 'power2.inOut',
         },
         0.05
       );
     }
 
-    // 3. Initiate page scroll to Section 2 (#the-pour) right as the bowl reaches bottom
+    // 3. Initiate page scroll to Section 2 right as the bowl glides through the bottom
     setTimeout(() => {
       if (onUnlockAndNext) {
         playChime();
         onUnlockAndNext();
       }
-    }, 450);
+    }, 700);
 
     // 4. Restore original layout state after scroll has safely transitioned to Section 2
     setTimeout(() => {
@@ -401,7 +401,7 @@ export function JuiceScrollHero({
         );
         gsap.set(elements, { y: 0, opacity: 1 });
       }
-    }, 1800);
+    }, 2200);
   }, [onUnlockAndNext]);
 
   /**
