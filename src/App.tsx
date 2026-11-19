@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ArrowDown, Play, Pause } from 'lucide-react'
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { playScoopPop, playChime } from './utils/audio';
+import { getOptimizedImageUrl } from './utils/image';
 
 // Code-splitting: Lazy-load heavy below-the-fold sections for instant first paint
 const ChocolateScrollExperience = React.lazy(() =>
@@ -39,7 +40,7 @@ const FLAVORS: FlavorItem[] = [
     color: '#3F9418',
     gradientStops: ['#01451F', '#3F9418'],
     bgGradient: 'linear-gradient(270deg, #01451F 0%, #3F9418 100%)',
-    image: '/images/kiwi-bowl-circle.png',
+    image: getOptimizedImageUrl('/images/kiwi-bowl-circle.webp'),
     decorImage: '/images/kiwi-decor.png',
     description: 'Crisp kiwi wheels, sweet white grapes, and creamy whole milk custard swirled into a vibrant, revitalizing dessert.',
     notes: ['Crisp Kiwi Wheels', 'Sweet White Grapes', 'Belgian White Chocolate'],
@@ -50,7 +51,7 @@ const FLAVORS: FlavorItem[] = [
     color: '#F0B800',
     gradientStops: ['#A86A00', '#F0B800'],
     bgGradient: 'linear-gradient(270deg, #A86A00 0%, #F0B800 100%)',
-    image: '/images/banana-bowl-circle.png',
+    image: getOptimizedImageUrl('/images/banana-bowl-circle.webp'),
     decorImage: '/images/banana-decor.png',
     description: 'Bright, zesty, and refreshingly tart, this pie features sun-ripened banana slices topped with clouds of toasted marshmallow meringue.',
     notes: ['Sun-ripened Banana Slices', 'Organic Wildflower Honey', 'Crispy Honeycomb'],
@@ -61,7 +62,7 @@ const FLAVORS: FlavorItem[] = [
     color: '#C90035',
     gradientStops: ['#8B0024', '#C90035'],
     bgGradient: 'linear-gradient(270deg, #8B0024 0%, #C90035 100%)',
-    image: '/images/strawberry-bowl-circle.png',
+    image: getOptimizedImageUrl('/images/strawberry-bowl-circle.webp'),
     decorImage: '/images/strawberry-decor.png',
     description: 'Fresh strawberries, creamy double-churned scoops, and white chocolate pieces in one smooth, dreamy dessert.',
     notes: ['Alpine Strawberries', 'Hokkaido Sweet Milk', 'Berry Compote'],
@@ -72,7 +73,7 @@ const FLAVORS: FlavorItem[] = [
     color: '#52301C',
     gradientStops: ['#52301C', '#241105'],
     bgGradient: 'linear-gradient(135deg, #52301C 0%, #241105 50%, #391D12 100%)',
-    image: '/images/chocolate-bowl-circle.png',
+    image: getOptimizedImageUrl('/images/chocolate-bowl-circle.webp'),
     decorImage: '/images/chocolate-decor.png',
     description: 'Velvety double-churned Belgian dark chocolate gelato loaded with crunchy chocolate pearls and molten hot fudge drizzle.',
     notes: ['Belgian Dark Cocoa', 'Milk Chocolate Chunks', 'Hot Fudge Drip'],
@@ -104,6 +105,38 @@ export function App() {
 
   const currentFlavor = FLAVORS[currentIndex];
   const totalItems = FLAVORS.length;
+
+  // Strictly prevent document scrolling while Hero is active
+  useEffect(() => {
+    if (isHeroLocked) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      if (lenisRef.current) {
+        lenisRef.current.stop();
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      if (lenisRef.current) {
+        lenisRef.current.start();
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isHeroLocked]);
+
+  // Prevent browser scroll restoration when starting on Hero
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    const hash = window.location.hash.toLowerCase();
+    if (!hash || hash === '#home' || hash === '#hero') {
+      window.scrollTo(0, 0);
+    }
+  }, []);
 
   // Initialize Lenis for luxurious buttery-smooth continuous page scrolling
   useEffect(() => {
@@ -347,6 +380,12 @@ export function App() {
     if (target !== '#the-pour') {
       setIsPourLocked(false);
       isPourLockedRef.current = false;
+    }
+    if (target !== '#home') {
+      setIsHeroLocked(false);
+      isHeroLockedRef.current = false;
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     if (lenisRef.current) {
       lenisRef.current.start();

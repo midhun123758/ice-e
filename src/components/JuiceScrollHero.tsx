@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { playScoopPop, playChime } from '../utils/audio';
+import { getOptimizedImageUrl } from '../utils/image';
 
 export interface JuiceSection {
   id: string;
@@ -34,7 +35,7 @@ const SECTIONS: JuiceSection[] = [
     number: '01',
     color: '#31D677',
     gradient: 'radial-gradient(at center center, #31D677 30%, #259B57 72%)',
-    circleBowlImage: '/images/kiwi-bowl-circle.png',
+    circleBowlImage: getOptimizedImageUrl('/images/kiwi-bowl-circle.webp'),
     description:
       'Crafted from nature’s best, every scoop is a blend of pure hand-sliced kiwi wheels, sweet white grapes, and double-churned custard.',
     ingredients: [
@@ -78,7 +79,7 @@ const SECTIONS: JuiceSection[] = [
     number: '02',
     color: '#FF4F78',
     gradient: 'radial-gradient(at center center, #FF4F78 40%, #D92A54 72%)',
-    circleBowlImage: '/images/strawberry-bowl-circle.png',
+    circleBowlImage: getOptimizedImageUrl('/images/strawberry-bowl-circle.webp'),
     description:
       'Handpicked alpine strawberries blended into a luscious velvety cream base, topped with delicate white chocolate shards and fresh berry nectar.',
     ingredients: [
@@ -122,7 +123,7 @@ const SECTIONS: JuiceSection[] = [
     number: '03',
     color: '#FFA94D',
     gradient: 'radial-gradient(at center center, #FFA94D 40%, #FF7E3D 72%)',
-    circleBowlImage: '/images/banana-bowl-circle.png',
+    circleBowlImage: getOptimizedImageUrl('/images/banana-bowl-circle.webp'),
     description:
       'Sun-ripened banana slices folded into wildflower honey custard, topped with clouds of toasted marshmallow meringue and crispy golden honeycomb.',
     ingredients: [
@@ -166,7 +167,7 @@ const SECTIONS: JuiceSection[] = [
     number: '04',
     color: '#7B3F00',
     gradient: 'radial-gradient(at center center, #7B3F00 35%, #421D05 75%)',
-    circleBowlImage: '/images/chocolate-bowl-circle.png',
+    circleBowlImage: getOptimizedImageUrl('/images/chocolate-bowl-circle.webp'),
     description:
       'Velvety double-churned Belgian 72% dark chocolate gelato loaded with crunchy chocolate pearls and molten hot fudge drizzle.',
     ingredients: [
@@ -221,11 +222,22 @@ export function JuiceScrollHero({
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const bowlRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Animation Lock Flag
+  // Animation & Transition Locks
   const isAnimatingRef = useRef(false);
+  const finalFlavorSettledRef = useRef(false);
   const animSafetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastActionTimeRef = useRef(0);
   const currentIndexRef = useRef(0);
   currentIndexRef.current = currentIndex;
+
+  // Reset flavor state when returning to hero
+  useEffect(() => {
+    if (isLocked) {
+      finalFlavorSettledRef.current = false;
+      isAnimatingRef.current = false;
+      lastActionTimeRef.current = 0;
+    }
+  }, [isLocked]);
 
   /**
    * Transition to a slide using slow, cinematic, ultra-smooth GSAP mechanics
@@ -236,6 +248,7 @@ export function JuiceScrollHero({
 
     const oldIndex = currentIndexRef.current;
     isAnimatingRef.current = true;
+    finalFlavorSettledRef.current = false;
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
 
@@ -243,7 +256,10 @@ export function JuiceScrollHero({
     if (animSafetyRef.current) clearTimeout(animSafetyRef.current);
     animSafetyRef.current = setTimeout(() => {
       isAnimatingRef.current = false;
-    }, 1800);
+      if (currentIndexRef.current === SECTIONS.length - 1) {
+        finalFlavorSettledRef.current = true;
+      }
+    }, 1500);
 
     playScoopPop();
 
@@ -254,7 +270,7 @@ export function JuiceScrollHero({
     const bgB = bgRefB.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
-    const SLOW_SMOOTH_DURATION = 0.95; // Calm, elegant glide
+    const SLOW_SMOOTH_DURATION = 0.85; // Calm, elegant glide
 
     // Kill any active tweens on affected elements to prevent conflicts
     if (container) gsap.killTweensOf(container);
@@ -270,7 +286,7 @@ export function JuiceScrollHero({
         { opacity: 0 },
         {
           opacity: 1,
-          duration: 0.85,
+          duration: 0.75,
           ease: 'power2.inOut',
           onComplete: () => {
             if (bgA && bgB) {
@@ -300,10 +316,11 @@ export function JuiceScrollHero({
         ease: 'power2.inOut',
         onComplete: () => {
           if (newIndex === SECTIONS.length - 1) {
-            // Settle on final flavor (Chocolate) for 350ms so user sees it rest before next scroll can drop
+            // Settle on final flavor (Chocolate) for 400ms so user sees it rest before next scroll can drop
             setTimeout(() => {
+              finalFlavorSettledRef.current = true;
               isAnimatingRef.current = false;
-            }, 350);
+            }, 400);
           } else {
             isAnimatingRef.current = false;
           }
@@ -332,6 +349,7 @@ export function JuiceScrollHero({
   const dropToNextSection = useCallback(() => {
     if (isAnimatingRef.current) return;
     isAnimatingRef.current = true;
+    finalFlavorSettledRef.current = false;
 
     // Watchdog safety timer
     if (animSafetyRef.current) clearTimeout(animSafetyRef.current);
@@ -414,23 +432,22 @@ export function JuiceScrollHero({
   }, [onUnlockAndNext]);
 
   /**
-   * Wheel Listener for exact slide-by-slide lock with smooth pacing
+   * Capturing Wheel & Touch Listeners for exact slide-by-slide lock with smooth pacing
    */
   useEffect(() => {
-    const heroEl = heroRef.current;
-    if (!heroEl) return;
-
     let wheelAccum = 0;
     let wheelTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const handleWheel = (e: WheelEvent) => {
       if (!isLocked) return;
-      if (window.scrollY > window.innerHeight * 0.4) return;
 
+      // Strictly intercept all wheel events while hero is locked to prevent page scroll
       e.preventDefault();
-      e.stopPropagation();
+      e.stopImmediatePropagation();
 
       if (isAnimatingRef.current) return;
+      const now = Date.now();
+      if (now - lastActionTimeRef.current < 350) return;
 
       wheelAccum += e.deltaY;
 
@@ -445,14 +462,18 @@ export function JuiceScrollHero({
         wheelAccum = 0;
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
+          lastActionTimeRef.current = now;
           goToSlide(cur + 1);
-        } else {
+        } else if (cur === SECTIONS.length - 1 && finalFlavorSettledRef.current) {
+          lastActionTimeRef.current = now;
           dropToNextSection();
         }
       } else if (wheelAccum < -THRESHOLD) {
         wheelAccum = 0;
         const cur = currentIndexRef.current;
         if (cur > 0) {
+          lastActionTimeRef.current = now;
+          finalFlavorSettledRef.current = false;
           goToSlide(cur - 1);
         }
       }
@@ -460,35 +481,60 @@ export function JuiceScrollHero({
 
     // Keyboard arrow / Page navigation
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isLocked || isAnimatingRef.current) return;
-      if (window.scrollY > window.innerHeight * 0.4) return;
+      if (!isLocked) return;
+      if (
+        e.key === 'ArrowDown' ||
+        e.key === 'PageDown' ||
+        e.key === ' ' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'PageUp'
+      ) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+
+      if (isAnimatingRef.current) return;
+      const now = Date.now();
+      if (now - lastActionTimeRef.current < 350) return;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        e.preventDefault();
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
+          lastActionTimeRef.current = now;
           goToSlide(cur + 1);
-        } else {
+        } else if (cur === SECTIONS.length - 1 && finalFlavorSettledRef.current) {
+          lastActionTimeRef.current = now;
           dropToNextSection();
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
         const cur = currentIndexRef.current;
         if (cur > 0) {
+          lastActionTimeRef.current = now;
+          finalFlavorSettledRef.current = false;
           goToSlide(cur - 1);
         }
       }
     };
 
-    // Touch Swipe Navigation for mobile
+    // Touch Swipe Navigation for mobile & touchscreens
     let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => {
+      if (!isLocked) return;
       touchStartY = e.touches[0].clientY;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isLocked) return;
+      // Prevent mobile browser from dragging / scrolling document
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    };
+
     const handleTouchEnd = (e: TouchEvent) => {
-      if (!isLocked || isAnimatingRef.current) return;
-      if (window.scrollY > window.innerHeight * 0.4) return;
+      if (!isLocked) return;
+      if (isAnimatingRef.current) return;
+      const now = Date.now();
+      if (now - lastActionTimeRef.current < 350) return;
 
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
@@ -497,32 +543,38 @@ export function JuiceScrollHero({
         if (deltaY > 0) {
           const cur = currentIndexRef.current;
           if (cur < SECTIONS.length - 1) {
+            lastActionTimeRef.current = now;
             goToSlide(cur + 1);
-          } else {
+          } else if (cur === SECTIONS.length - 1 && finalFlavorSettledRef.current) {
+            lastActionTimeRef.current = now;
             dropToNextSection();
           }
         } else {
           const cur = currentIndexRef.current;
           if (cur > 0) {
+            lastActionTimeRef.current = now;
+            finalFlavorSettledRef.current = false;
             goToSlide(cur - 1);
           }
         }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel, { capture: true });
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
       window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove, { capture: true });
       window.removeEventListener('touchend', handleTouchEnd);
       if (wheelTimeout) clearTimeout(wheelTimeout);
     };
-  }, [isLocked, goToSlide, onUnlockAndNext]);
+  }, [isLocked, goToSlide, dropToNextSection]);
 
   return (
     <section
