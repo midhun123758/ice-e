@@ -120,6 +120,9 @@ export function App() {
     lenisRef.current = lenis;
     (window as any).__lenis = lenis;
 
+    // Lock page on hero initially so wheel steps through 4 flavors first
+    lenis.stop();
+
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
@@ -222,6 +225,9 @@ export function App() {
             if (!isHeroLockedRef.current && !isNavigatingRef.current) {
               setIsHeroLocked(true);
               isHeroLockedRef.current = true;
+              if (lenisRef.current) {
+                lenisRef.current.stop();
+              }
             }
           }
 
