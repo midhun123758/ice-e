@@ -173,17 +173,22 @@ export function App() {
           ticking = false;
           const winH = window.innerHeight;
 
-          // 1. Check Section 2 locking condition: when it fully fixes the screen, lock it!
-          if (pourContainerRef.current && !isPourLockedRef.current && !isNavigatingRef.current) {
+          // 1. Check Section 2 locking condition: when second page reaches center of screen, activate scroll animation & lock!
+          if (pourContainerRef.current && !isPourLockedRef.current) {
             const rect = pourContainerRef.current.getBoundingClientRect();
-            if (Math.abs(rect.top) <= 35) {
+            if (rect.top <= winH * 0.55 && rect.bottom >= winH * 0.35) {
               if (lenisRef.current) {
-                lenisRef.current.scrollTo(pourContainerRef.current, { immediate: true });
-                lenisRef.current.stop();
+                lenisRef.current.scrollTo(pourContainerRef.current, {
+                  duration: 0.45,
+                  onComplete: () => {
+                    if (lenisRef.current) lenisRef.current.stop();
+                    isNavigatingRef.current = false;
+                  },
+                });
               }
               setIsPourLocked(true);
               isPourLockedRef.current = true;
-              setActiveNav((prev) => (prev !== 'THE POUR' ? 'THE POUR' : prev));
+              setActiveNav('THE POUR');
               return;
             }
           }
@@ -325,14 +330,13 @@ export function App() {
       else window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (target === '#the-pour') {
       if (pourContainerRef.current) {
+        setIsPourLocked(true);
+        isPourLockedRef.current = true;
         if (lenis) {
           lenis.scrollTo(pourContainerRef.current, {
-            duration: 0.85,
+            duration: 0.6,
             onComplete: () => {
-              // Lock onto Section 2 immediately and smoothly when arrived via navigation
               if (lenisRef.current) lenisRef.current.stop();
-              setIsPourLocked(true);
-              isPourLockedRef.current = true;
               isNavigatingRef.current = false;
             },
           });
