@@ -356,7 +356,6 @@ export function App() {
             isNavigatingRef.current = false;
             setIsHeroLocked(true);
             isHeroLockedRef.current = true;
-            if (lenisRef.current) lenisRef.current.stop();
           },
         });
       } else {

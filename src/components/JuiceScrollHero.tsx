@@ -223,6 +223,7 @@ export function JuiceScrollHero({
 
   // Animation Lock Flag
   const isAnimatingRef = useRef(false);
+  const finalFlavorReadyRef = useRef(false);
   const currentIndexRef = useRef(0);
   currentIndexRef.current = currentIndex;
 
@@ -235,6 +236,9 @@ export function JuiceScrollHero({
 
     const oldIndex = currentIndexRef.current;
     isAnimatingRef.current = true;
+    finalFlavorReadyRef.current = false;
+    currentIndexRef.current = newIndex;
+    setCurrentIndex(newIndex);
 
     playScoopPop();
 
@@ -245,17 +249,23 @@ export function JuiceScrollHero({
     const bgB = bgRefB.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
-    const SLOW_SMOOTH_DURATION = 1.15; // Silky-smooth, calm, elegant glide
+    const SLOW_SMOOTH_DURATION = 1.0; // Calm, elegant glide
+
+    // Kill any active tweens on affected elements to prevent conflicts
+    if (container) gsap.killTweensOf(container);
+    if (origin) gsap.killTweensOf(origin);
+    if (dest) gsap.killTweensOf(dest);
 
     // 1. Dual-layer pure opacity crossfade for radial background (zero browser repaint stutter)
     if (bgA && bgB) {
+      gsap.killTweensOf(bgB);
       bgB.style.backgroundImage = newGradient;
       gsap.fromTo(
         bgB,
         { opacity: 0 },
         {
           opacity: 1,
-          duration: 1.05,
+          duration: 0.9,
           ease: 'power2.inOut',
           onComplete: () => {
             if (bgA && bgB) {
@@ -270,8 +280,8 @@ export function JuiceScrollHero({
     // 2. Scale down and soften origin section gently
     if (origin) {
       gsap.to(origin, {
-        scale: 0.8,
-        opacity: 0.3,
+        scale: 0.85,
+        opacity: 0.4,
         duration: SLOW_SMOOTH_DURATION,
         ease: 'power2.inOut',
       });
@@ -284,8 +294,15 @@ export function JuiceScrollHero({
         duration: SLOW_SMOOTH_DURATION,
         ease: 'power2.inOut',
         onComplete: () => {
-          setCurrentIndex(newIndex);
           isAnimatingRef.current = false;
+          if (newIndex === SECTIONS.length - 1) {
+            // Final flavor arrived! Small settle delay so residual scroll doesn't immediately drop
+            setTimeout(() => {
+              finalFlavorReadyRef.current = true;
+            }, 300);
+          } else {
+            finalFlavorReadyRef.current = false;
+          }
         },
       });
     }
@@ -294,7 +311,7 @@ export function JuiceScrollHero({
     if (dest) {
       gsap.fromTo(
         dest,
-        { scale: 0.8, opacity: 0.3 },
+        { scale: 0.85, opacity: 0.4 },
         {
           scale: 1,
           opacity: 1,
@@ -311,35 +328,32 @@ export function JuiceScrollHero({
   const dropToNextSection = useCallback(() => {
     if (isAnimatingRef.current) return;
     isAnimatingRef.current = true;
+    finalFlavorReadyRef.current = false;
 
     playScoopPop();
 
     const activeBowl = bowlRefs.current[3];
     const activeSection = sectionRefs.current[3];
 
-    // GSAP Timeline for the gravity drop into Section 2
-    const tl = gsap.timeline({
-      onComplete: () => {
-        isAnimatingRef.current = false;
-      },
-    });
+    // GSAP Timeline for the smooth bowl descent into Section 2
+    const tl = gsap.timeline();
 
-    // 1. The chocolate bowl drops down through the bottom of the section with gravity
+    // 1. The chocolate bowl drops down to the bottom smoothly (no tilt, smooth glide)
     if (activeBowl) {
+      gsap.killTweensOf(activeBowl);
       tl.to(
         activeBowl,
         {
-          y: '115vh',
-          rotation: 14,
-          scale: 0.88,
-          duration: 1.1,
-          ease: 'power2.in',
+          y: '75vh',
+          scale: 0.96,
+          duration: 0.9,
+          ease: 'power2.inOut',
         },
         0
       );
     }
 
-    // 2. Parallax: text and decorative ingredients disperse smoothly as the flavor plunges down
+    // 2. Parallax: text and decorative ingredients disperse smoothly as the bowl glides down
     if (activeSection) {
       const texts = activeSection.querySelectorAll('.select-text, h1, p');
       const ings = activeSection.querySelectorAll(
@@ -348,35 +362,36 @@ export function JuiceScrollHero({
       tl.to(
         texts,
         {
-          y: -60,
+          y: -40,
           opacity: 0,
-          duration: 0.75,
+          duration: 0.55,
           ease: 'power2.out',
         },
-        0.05
+        0
       );
       tl.to(
         ings,
         {
-          y: '75vh',
+          y: '45vh',
           opacity: 0,
-          duration: 0.95,
-          ease: 'power2.in',
+          duration: 0.75,
+          ease: 'power2.inOut',
         },
-        0.1
+        0.05
       );
     }
 
-    // 3. Initiate page scroll to Section 2 (#the-pour) right as the drop plunges down
+    // 3. Initiate page scroll to Section 2 (#the-pour) right as the bowl reaches bottom
     setTimeout(() => {
       if (onUnlockAndNext) {
         playChime();
         onUnlockAndNext();
       }
-    }, 120);
+    }, 450);
 
     // 4. Restore original layout state after scroll has safely transitioned to Section 2
     setTimeout(() => {
+      isAnimatingRef.current = false;
       if (activeBowl) {
         gsap.set(activeBowl, { y: 0, rotation: 0, scale: 1 });
       }
@@ -386,7 +401,7 @@ export function JuiceScrollHero({
         );
         gsap.set(elements, { y: 0, opacity: 1 });
       }
-    }, 2200);
+    }, 1800);
   }, [onUnlockAndNext]);
 
   /**
@@ -422,14 +437,15 @@ export function JuiceScrollHero({
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
-        } else {
-          // After 4th flavor: drop the flavor down into Section 2
+        } else if (finalFlavorReadyRef.current) {
+          // Only after 4th flavor has fully arrived and settled: drop down smoothly into Section 2
           dropToNextSection();
         }
       } else if (wheelAccum < -THRESHOLD) {
         wheelAccum = 0;
         const cur = currentIndexRef.current;
         if (cur > 0) {
+          finalFlavorReadyRef.current = false;
           goToSlide(cur - 1);
         }
       }
@@ -445,13 +461,14 @@ export function JuiceScrollHero({
         const cur = currentIndexRef.current;
         if (cur < SECTIONS.length - 1) {
           goToSlide(cur + 1);
-        } else {
+        } else if (finalFlavorReadyRef.current) {
           dropToNextSection();
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         const cur = currentIndexRef.current;
         if (cur > 0) {
+          finalFlavorReadyRef.current = false;
           goToSlide(cur - 1);
         }
       }
@@ -475,12 +492,13 @@ export function JuiceScrollHero({
           const cur = currentIndexRef.current;
           if (cur < SECTIONS.length - 1) {
             goToSlide(cur + 1);
-          } else {
+          } else if (finalFlavorReadyRef.current) {
             dropToNextSection();
           }
         } else {
           const cur = currentIndexRef.current;
           if (cur > 0) {
+            finalFlavorReadyRef.current = false;
             goToSlide(cur - 1);
           }
         }
@@ -556,6 +574,8 @@ export function JuiceScrollHero({
             className="section relative w-full h-screen flex items-center justify-center will-change-transform select-none"
             style={{
               transformOrigin: 'center center',
+              transform: idx === 0 ? 'scale(1)' : 'scale(0.85)',
+              opacity: idx === 0 ? 1 : 0.4,
             }}
           >
             {/* ====================================================
