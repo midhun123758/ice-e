@@ -4,6 +4,7 @@ import { ArrowDown } from 'lucide-react';
 interface ChocolateScrollExperienceProps {
   isActive?: boolean;
   isAutoPlay?: boolean;
+  initialFrame?: number;
   scrollProgress?: number;
   onComplete?: () => void;
   onRewindToStart?: () => void;
@@ -22,6 +23,7 @@ const THEME = {
 export function ChocolateScrollExperience({
   isActive = false,
   isAutoPlay = false,
+  initialFrame,
   scrollProgress,
   onComplete,
   onRewindToStart,
@@ -138,12 +140,16 @@ export function ChocolateScrollExperience({
   // Reset or initialize frame when section becomes active (instantly responsive, no cooldown lockout)
   useEffect(() => {
     if (isActive) {
+      if (initialFrame !== undefined) {
+        currentFrameRef.current = initialFrame;
+        targetFrameRef.current = initialFrame;
+      }
       isCooldownRef.current = false;
       endOverscrollRef.current = 0;
       startOverscrollRef.current = 0;
       renderFrame(currentFrameRef.current);
     }
-  }, [isActive]);
+  }, [isActive, initialFrame]);
 
   // Synchronize frame with smooth page scroll progress if provided
   useEffect(() => {

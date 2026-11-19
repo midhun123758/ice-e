@@ -89,14 +89,16 @@ export function App() {
   const pourContainerRef = useRef<HTMLDivElement>(null);
   const flavorsContainerRef = useRef<HTMLDivElement>(null);
 
-  const [isHeroLocked, setIsHeroLocked] = useState(true);
-  const isHeroLockedRef = useRef(true);
+  const [isHeroLocked, setIsHeroLocked] = useState(false);
+  const isHeroLockedRef = useRef(false);
   isHeroLockedRef.current = isHeroLocked;
 
   const [isPourLocked, setIsPourLocked] = useState(false);
   const isPourLockedRef = useRef(false);
   isPourLockedRef.current = isPourLocked;
   const isNavigatingRef = useRef(false);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pourInitialFrame, setPourInitialFrame] = useState(0);
 
   const [flavorsProgress, setFlavorsProgress] = useState(0);
 
@@ -117,9 +119,6 @@ export function App() {
 
     lenisRef.current = lenis;
     (window as any).__lenis = lenis;
-
-    // Lock page on hero initially
-    lenis.stop(); // Initial hero lock
 
     let rafId: number;
     function raf(time: number) {
@@ -146,6 +145,7 @@ export function App() {
   };
 
   const handlePourComplete = () => {
+    isNavigatingRef.current = true;
     setIsPourLocked(false);
     isPourLockedRef.current = false;
     if (lenisRef.current) {
@@ -155,6 +155,7 @@ export function App() {
   };
 
   const handlePourRewind = () => {
+    isNavigatingRef.current = true;
     setIsPourLocked(false);
     isPourLockedRef.current = false;
     if (lenisRef.current) {
@@ -172,45 +173,53 @@ export function App() {
         requestAnimationFrame(() => {
           ticking = false;
           const winH = window.innerHeight;
+          const scrollY = window.scrollY;
 
-          // 1. Check Section 2 locking condition: start scroll animation AFTER reaching past the middle of the screen!
-          if (pourContainerRef.current && !isPourLockedRef.current && !isNavigatingRef.current) {
+          // If currently navigating programmatically between sections, do not interrupt with intermediate lock
+          if (isNavigatingRef.current) {
+            return;
+          }
+
+          // 1. Check Section 2 locking condition:
+          // User requirement: "start the scrolling animation after reaching the middle and a little bit more of the screen"
+          if (pourContainerRef.current && !isPourLockedRef.current) {
             const rect = pourContainerRef.current.getBoundingClientRect();
-            // Triggers after reaching past the middle (rect.top <= winH * 0.25, i.e. 75%+ into view)
-            if (rect.top <= winH * 0.25 && rect.bottom >= winH * 0.25) {
+            // Coming down from Hero: top crosses past the 50% line to 45% or less from top
+            if (rect.top <= winH * 0.45 && rect.top > 0) {
               if (lenisRef.current) {
                 lenisRef.current.scrollTo(pourContainerRef.current, {
-                  duration: 0.6,
+                  duration: 0.65,
                   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                  onComplete: () => {
-                    if (lenisRef.current) lenisRef.current.stop();
-                    setIsPourLocked(true);
-                    isPourLockedRef.current = true;
-                    isNavigatingRef.current = false;
-                  },
+                  lock: true,
                 });
-              } else {
-                setIsPourLocked(true);
-                isPourLockedRef.current = true;
               }
+              setPourInitialFrame(0);
+              setIsPourLocked(true);
+              isPourLockedRef.current = true;
+              setActiveNav('THE POUR');
+              return;
+            }
+            // Coming up from Flavors: bottom reaches 55% from top
+            else if (rect.bottom >= winH * 0.55 && rect.bottom < winH * 1.5 && rect.top < 0) {
+              if (lenisRef.current) {
+                lenisRef.current.scrollTo(pourContainerRef.current, {
+                  duration: 0.65,
+                  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                  lock: true,
+                });
+              }
+              setPourInitialFrame(57);
+              setIsPourLocked(true);
+              isPourLockedRef.current = true;
               setActiveNav('THE POUR');
               return;
             }
           }
 
-          // Update top navbar active tab indicator based on natural scroll position
-          const scrollY = window.scrollY;
-            // Re-lock hero when user returns to top
-            if (scrollY <= 15 && !isHeroLockedRef.current && !isNavigatingRef.current) {
-              if (lenisRef.current) {
-                lenisRef.current.scrollTo(0, { immediate: true });
-                lenisRef.current.stop();
-              }
-              setIsHeroLocked(true);
-              isHeroLockedRef.current = true;
-              setActiveNav('HOME');
-              return;
-            }
+          // Update HOME active nav when user returns to top
+          if (scrollY <= 15) {
+            setActiveNav('HOME');
+          }
 
           const pourEl = pourContainerRef.current;
           const flavorsEl = document.getElementById('flavors');
@@ -323,24 +332,42 @@ export function App() {
   // Smooth anchor scrolling helper
   const scrollToTarget = (target: string) => {
     isNavigatingRef.current = true;
-    setIsPourLocked(false);
-    isPourLockedRef.current = false;
+    if (navTimerRef.current) clearTimeout(navTimerRef.current);
+
+    if (target !== '#the-pour') {
+      setIsPourLocked(false);
+      isPourLockedRef.current = false;
+    }
     if (lenisRef.current) {
       lenisRef.current.start();
     }
 
     const lenis = lenisRef.current;
     if (target === '#home') {
-      if (lenis) lenis.scrollTo(0, { duration: 1.2 });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenis) {
+        lenis.scrollTo(0, {
+          duration: 1.0,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            setIsHeroLocked(true);
+            isHeroLockedRef.current = true;
+            if (lenisRef.current) lenisRef.current.stop();
+          },
+        });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        isNavigatingRef.current = false;
+      }
     } else if (target === '#the-pour') {
       if (pourContainerRef.current) {
+        setPourInitialFrame(0);
         if (lenis) {
           lenis.scrollTo(pourContainerRef.current, {
-            duration: 1.0,
+            duration: 0.85,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            lock: true,
             onComplete: () => {
-              if (lenisRef.current) lenisRef.current.stop();
               setIsPourLocked(true);
               isPourLockedRef.current = true;
               isNavigatingRef.current = false;
@@ -348,42 +375,53 @@ export function App() {
           });
         } else {
           pourContainerRef.current.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => {
-            setIsPourLocked(true);
-            isPourLockedRef.current = true;
-            isNavigatingRef.current = false;
-          }, 700);
+          setIsPourLocked(true);
+          isPourLockedRef.current = true;
+          isNavigatingRef.current = false;
         }
       }
     } else if (target === '#flavors') {
       const el = document.getElementById('flavors');
       if (el) {
-        if (lenis) lenis.scrollTo(el, { duration: 1.2 });
-        else el.scrollIntoView({ behavior: 'smooth' });
+        if (lenis) {
+          lenis.scrollTo(el, {
+            duration: 1.0,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            onComplete: () => {
+              isNavigatingRef.current = false;
+            },
+          });
+        } else {
+          el.scrollIntoView({ behavior: 'smooth' });
+          isNavigatingRef.current = false;
+        }
       }
-    } else if (target === '#heritage') {
-      const el = document.getElementById('heritage');
+    } else {
+      const el = document.querySelector(target);
       if (el) {
-        if (lenis) lenis.scrollTo(el, { duration: 1.2 });
-        else el.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else if (target === '#experience') {
-      const el = document.getElementById('experience');
-      if (el) {
-        if (lenis) lenis.scrollTo(el, { duration: 1.2 });
-        else el.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else if (target === '#about') {
-      const el = document.getElementById('about');
-      if (el) {
-        if (lenis) lenis.scrollTo(el, { duration: 1.2 });
-        else el.scrollIntoView({ behavior: 'smooth' });
+        if (lenis) {
+          lenis.scrollTo(el as HTMLElement, {
+            duration: 1.0,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            onComplete: () => {
+              isNavigatingRef.current = false;
+            },
+          });
+        } else {
+          el.scrollIntoView({ behavior: 'smooth' });
+          isNavigatingRef.current = false;
+        }
       }
     }
 
-    setTimeout(() => {
+    // Safety fallback: ensure isNavigatingRef is always cleared after animation
+    navTimerRef.current = setTimeout(() => {
       isNavigatingRef.current = false;
-    }, 900);
+      if (target === '#the-pour') {
+        setIsPourLocked(true);
+        isPourLockedRef.current = true;
+      }
+    }, 1100);
   };
 
   useEffect(() => {
@@ -569,6 +607,7 @@ export function App() {
           <ChocolateScrollExperience
             isActive={isPourLocked}
             isAutoPlay={isAutoPlay}
+            initialFrame={pourInitialFrame}
             onComplete={handlePourComplete}
             onRewindToStart={handlePourRewind}
           />
