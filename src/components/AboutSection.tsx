@@ -71,14 +71,14 @@ export function AboutSection({
           ABOUT ICE E: ONLY THE WORDS (NO CARDS, NO BUTTONS, NO BADGES)
           Pure, high-contrast, beautiful typography
           ======================================================== */}
-      <div className="relative z-10 w-full flex-1 flex flex-col items-center justify-center max-w-5xl mx-auto px-6 sm:px-12 pt-28 sm:pt-36 pb-16 text-center select-text">
+      <div className="relative z-10 w-full flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto px-6 sm:px-12 pt-20 sm:pt-28 pb-12 text-center select-text">
         {/* Title: About ICE E */}
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight text-[#23120b] mb-8 drop-shadow-sm leading-none"
+          className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-[#23120b] mb-6 drop-shadow-sm leading-none"
           style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
         >
           About ICE E
@@ -90,7 +90,7 @@ export function AboutSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="text-2xl sm:text-3xl lg:text-4xl xl:text-[2.6rem] text-[#2b170e] font-normal leading-relaxed sm:leading-relaxed max-w-4xl mx-auto mb-8 drop-shadow-sm"
+          className="text-lg sm:text-xl md:text-2xl lg:text-[1.5rem] xl:text-[1.65rem] text-[#2b170e] font-normal leading-relaxed sm:leading-relaxed max-w-3xl mx-auto mb-5 drop-shadow-sm"
           style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
         >
           Born from an obsession with cold science and sensory contrast, ICE E redefines small-batch artisanal frozen confectionery. Every scoop is an exploration of pure textures, natural fruits, and molten drizzles.
@@ -102,7 +102,7 @@ export function AboutSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="text-lg sm:text-xl lg:text-2xl xl:text-[1.65rem] text-[#4a2e1b]/95 font-normal leading-relaxed sm:leading-relaxed max-w-3xl mx-auto drop-shadow-sm"
+          className="text-sm sm:text-base md:text-lg lg:text-xl text-[#4a2e1b]/95 font-normal leading-relaxed sm:leading-relaxed max-w-2xl mx-auto drop-shadow-sm"
           style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
         >
           Crafted in micro-batches with sun-ripened fruit slices, organic whole milk, and single-origin cocoa, celebrating pure ingredients and unmatched velvety smoothness.

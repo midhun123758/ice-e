@@ -392,25 +392,13 @@ export function ChocolateScrollExperience({
             The Molten Enrobing
           </h2>
 
-          {/* Description in larger font */}
+          {/* Description */}
           <p
-            className="text-lg sm:text-xl lg:text-2xl leading-relaxed font-medium mb-6 drop-shadow-sm"
+            className="text-base sm:text-lg lg:text-xl leading-relaxed font-normal mb-6 drop-shadow-sm"
             style={{ color: THEME.body }}
           >
             Pure double-churned Hokkaido milk soft-serve slowly enrobed in molten Belgian dark chocolate. Warm at the moment of cascade, the fudge crystallization sets into a delicate crisp shell with a rich, velvety core.
           </p>
-
-          {/* Subtle Craft Notes */}
-          <div
-            className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm sm:text-base font-semibold mb-4"
-            style={{ color: THEME.notes }}
-          >
-            <span>70% Single-Origin Cocoa</span>
-            <span>•</span>
-            <span>-7°C Hokkaido Churn</span>
-            <span>•</span>
-            <span>Crisp Molten Shell</span>
-          </div>
 
           {/* Clean Action Button when stopped at the final frame */}
           {displayFrame >= TOTAL_FRAMES - 2 && onComplete && (
