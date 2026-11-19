@@ -295,7 +295,7 @@ export function AutoFlavorShowcase({
               exit="exit"
               className="text-white font-extrabold tracking-tight leading-none whitespace-nowrap select-none will-change-transform drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)]"
               style={{
-                fontSize: 'clamp(8rem, 24vw, 27rem)',
+                fontSize: 'clamp(5rem, 14vw, 15rem)',
                 fontFamily: "'Fredoka', cursive, sans-serif",
               }}
             >

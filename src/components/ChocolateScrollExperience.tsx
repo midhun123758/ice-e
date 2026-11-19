@@ -357,21 +357,21 @@ export function ChocolateScrollExperience({
         className="w-full h-full object-cover pointer-events-none"
       />
 
-      {/* Side "About" Description: Large Editorial Typography (No box) */}
+      {/* Side "About" Description: Crisp Editorial Typography */}
       <aside
-        className={`absolute left-8 sm:left-14 lg:left-24 top-1/2 -translate-y-1/2 z-20 max-w-lg lg:max-w-2xl pointer-events-none transition-all duration-700 ease-out ${
+        className={`absolute left-6 sm:left-10 lg:left-16 xl:left-20 top-1/2 -translate-y-1/2 z-20 max-w-[280px] sm:max-w-[340px] lg:max-w-[400px] xl:max-w-[440px] pointer-events-none transition-all duration-700 ease-out ${
           isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
         }`}
       >
         <div className="flex flex-col items-start select-text">
           {/* Eyebrow Tag */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3">
             <span
-              className="w-3 h-3 rounded-full shadow-sm"
+              className="w-2.5 h-2.5 rounded-full shadow-sm"
               style={{ backgroundColor: THEME.dot }}
             />
             <span
-              className="text-sm sm:text-base font-bold uppercase tracking-widest"
+              className="text-xs sm:text-sm font-bold uppercase tracking-widest"
               style={{
                 fontFamily: "'Fredoka', cursive, sans-serif",
                 color: THEME.eyebrow,
@@ -381,9 +381,9 @@ export function ChocolateScrollExperience({
             </span>
           </div>
 
-          {/* Large Title in Fredoka Bold Font */}
+          {/* Title in Fredoka Bold Font */}
           <h2
-            className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.04] mb-5 drop-shadow-sm select-none"
+            className="text-3xl sm:text-4xl lg:text-[2.75rem] xl:text-[3.25rem] font-bold tracking-tight leading-[1.04] mb-3 sm:mb-4 drop-shadow-sm select-none"
             style={{
               fontFamily: "'Fredoka', cursive, sans-serif",
               color: THEME.title,
@@ -394,7 +394,7 @@ export function ChocolateScrollExperience({
 
           {/* Description */}
           <p
-            className="text-base sm:text-lg lg:text-xl leading-relaxed font-normal mb-6 drop-shadow-sm"
+            className="text-xs sm:text-sm lg:text-base leading-relaxed font-normal mb-5 drop-shadow-sm"
             style={{ color: THEME.body }}
           >
             Pure double-churned Hokkaido milk soft-serve slowly enrobed in molten Belgian dark chocolate. Warm at the moment of cascade, the fudge crystallization sets into a delicate crisp shell with a rich, velvety core.
