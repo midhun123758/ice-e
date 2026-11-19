@@ -557,14 +557,18 @@ export function JuiceScrollHero({
                 LEFT COLUMN: BALANCED EDITORIAL HEADLINE & STORY
                 Clean Suja-style hierarchy, perfectly spaced from center
                 ==================================================== */}
-            <div className="absolute left-6 sm:left-10 lg:left-12 xl:left-16 top-1/2 -translate-y-1/2 z-30 max-w-[230px] sm:max-w-[260px] lg:max-w-[290px] flex flex-col items-start pointer-events-auto select-text">
+            <div className="absolute left-6 sm:left-10 lg:left-12 xl:left-16 top-1/2 -translate-y-1/2 z-30 max-w-[240px] sm:max-w-[270px] lg:max-w-[300px] flex flex-col items-start pointer-events-auto select-text">
               <h1
-                className="text-3xl sm:text-4xl lg:text-[2.6rem] xl:text-[2.85rem] font-bold text-white uppercase tracking-tight leading-[0.95] mb-3 sm:mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] select-none"
-                style={{ fontFamily: "'Anton', sans-serif" }}
+                className="text-3xl sm:text-4xl lg:text-[2.6rem] xl:text-[2.85rem] font-normal text-white uppercase leading-[0.98] mb-3 sm:mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.3)] select-none"
+                style={{
+                  fontFamily: "'Anton', sans-serif",
+                  letterSpacing: '0.06em',
+                  wordSpacing: '0.15em',
+                }}
               >
                 {sec.heroTitle}
               </h1>
-              <p className="text-white/90 text-xs sm:text-[13px] lg:text-[14px] leading-relaxed font-normal drop-shadow-sm">
+              <p className="text-white/90 text-xs sm:text-[13px] lg:text-[14px] leading-relaxed font-normal drop-shadow-sm tracking-normal">
                 {sec.description}
               </p>
             </div>
