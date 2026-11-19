@@ -161,12 +161,12 @@ export function ChocolateScrollExperience({
     if (isLoopRunningRef.current) return;
     isLoopRunningRef.current = true;
 
-    const LERP_SPEED = 0.14; // Weighted liquid physics
+    const LERP_SPEED = 0.11; // Buttery, viscous molten chocolate physics
 
     const updateLoop = () => {
       const diff = targetFrameRef.current - currentFrameRef.current;
 
-      if (Math.abs(diff) > 0.008) {
+      if (Math.abs(diff) > 0.005) {
         currentFrameRef.current += diff * LERP_SPEED;
         renderFrame(currentFrameRef.current);
         rafIdRef.current = requestAnimationFrame(updateLoop);
@@ -236,7 +236,7 @@ export function ChocolateScrollExperience({
       if (isCooldownRef.current) return;
 
       const delta = e.deltaY;
-      const SENSITIVITY = 0.075; // Responsive, buttery fluid control rate
+      const SENSITIVITY = 0.055; // Silky fluid control rate
 
       if (delta > 0) {
         startOverscrollRef.current = 0;
@@ -244,7 +244,7 @@ export function ChocolateScrollExperience({
         if (targetFrameRef.current < TOTAL_FRAMES - 1) {
           targetFrameRef.current = Math.min(
             TOTAL_FRAMES - 1,
-            targetFrameRef.current + Math.min(5.0, Math.max(1.2, Math.abs(delta) * SENSITIVITY))
+            targetFrameRef.current + Math.min(4.0, Math.max(0.6, Math.abs(delta) * SENSITIVITY))
           );
           startLoop();
         } else {
@@ -265,7 +265,7 @@ export function ChocolateScrollExperience({
         if (targetFrameRef.current > 0) {
           targetFrameRef.current = Math.max(
             0,
-            targetFrameRef.current - Math.min(5.0, Math.max(1.2, Math.abs(delta) * SENSITIVITY))
+            targetFrameRef.current - Math.min(4.0, Math.max(0.6, Math.abs(delta) * SENSITIVITY))
           );
           startLoop();
         } else {

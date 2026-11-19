@@ -173,21 +173,26 @@ export function App() {
           ticking = false;
           const winH = window.innerHeight;
 
-          // 1. Check Section 2 locking condition: when second page reaches center of screen, activate scroll animation & lock!
-          if (pourContainerRef.current && !isPourLockedRef.current) {
+          // 1. Check Section 2 locking condition: start scroll animation AFTER reaching past the middle of the screen!
+          if (pourContainerRef.current && !isPourLockedRef.current && !isNavigatingRef.current) {
             const rect = pourContainerRef.current.getBoundingClientRect();
-            if (rect.top <= winH * 0.55 && rect.bottom >= winH * 0.35) {
+            // Triggers after reaching past the middle (rect.top <= winH * 0.25, i.e. 75%+ into view)
+            if (rect.top <= winH * 0.25 && rect.bottom >= winH * 0.25) {
               if (lenisRef.current) {
                 lenisRef.current.scrollTo(pourContainerRef.current, {
-                  duration: 0.45,
+                  duration: 0.6,
+                  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                   onComplete: () => {
                     if (lenisRef.current) lenisRef.current.stop();
+                    setIsPourLocked(true);
+                    isPourLockedRef.current = true;
                     isNavigatingRef.current = false;
                   },
                 });
+              } else {
+                setIsPourLocked(true);
+                isPourLockedRef.current = true;
               }
-              setIsPourLocked(true);
-              isPourLockedRef.current = true;
               setActiveNav('THE POUR');
               return;
             }
@@ -330,18 +335,24 @@ export function App() {
       else window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (target === '#the-pour') {
       if (pourContainerRef.current) {
-        setIsPourLocked(true);
-        isPourLockedRef.current = true;
         if (lenis) {
           lenis.scrollTo(pourContainerRef.current, {
-            duration: 0.6,
+            duration: 1.0,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             onComplete: () => {
               if (lenisRef.current) lenisRef.current.stop();
+              setIsPourLocked(true);
+              isPourLockedRef.current = true;
               isNavigatingRef.current = false;
             },
           });
         } else {
           pourContainerRef.current.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            setIsPourLocked(true);
+            isPourLockedRef.current = true;
+            isNavigatingRef.current = false;
+          }, 700);
         }
       }
     } else if (target === '#flavors') {
