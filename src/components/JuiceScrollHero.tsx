@@ -245,7 +245,7 @@ export function JuiceScrollHero({
     const bgB = bgRefB.current;
 
     const newGradient = SECTIONS[newIndex].gradient;
-    const SLOW_SMOOTH_DURATION = 1.45; // Silky-smooth, calm, elegant glide
+    const SLOW_SMOOTH_DURATION = 1.15; // Silky-smooth, calm, elegant glide
 
     // 1. Dual-layer pure opacity crossfade for radial background (zero browser repaint stutter)
     if (bgA && bgB) {
@@ -255,7 +255,7 @@ export function JuiceScrollHero({
         { opacity: 0 },
         {
           opacity: 1,
-          duration: 1.35,
+          duration: 1.05,
           ease: 'power2.inOut',
           onComplete: () => {
             if (bgA && bgB) {
@@ -401,6 +401,7 @@ export function JuiceScrollHero({
 
     const handleWheel = (e: WheelEvent) => {
       if (!isLocked) return;
+      if (window.scrollY > 20) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -412,9 +413,9 @@ export function JuiceScrollHero({
       if (wheelTimeout) clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
         wheelAccum = 0;
-      }, 220);
+      }, 200);
 
-      const THRESHOLD = 60;
+      const THRESHOLD = 50;
 
       if (wheelAccum > THRESHOLD) {
         wheelAccum = 0;
@@ -437,6 +438,8 @@ export function JuiceScrollHero({
     // Keyboard arrow / Page navigation
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isLocked || isAnimatingRef.current) return;
+      if (window.scrollY > 20) return;
+
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         const cur = currentIndexRef.current;
@@ -462,10 +465,12 @@ export function JuiceScrollHero({
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!isLocked || isAnimatingRef.current) return;
+      if (window.scrollY > 20) return;
+
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
-      if (Math.abs(deltaY) > 40) {
+      if (Math.abs(deltaY) > 35) {
         if (deltaY > 0) {
           const cur = currentIndexRef.current;
           if (cur < SECTIONS.length - 1) {
@@ -482,16 +487,16 @@ export function JuiceScrollHero({
       }
     };
 
-    heroEl.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeyDown);
-    heroEl.addEventListener('touchstart', handleTouchStart, { passive: true });
-    heroEl.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      heroEl.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
-      heroEl.removeEventListener('touchstart', handleTouchStart);
-      heroEl.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
       if (wheelTimeout) clearTimeout(wheelTimeout);
     };
   }, [isLocked, goToSlide, onUnlockAndNext]);

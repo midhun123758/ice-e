@@ -89,8 +89,8 @@ export function App() {
   const pourContainerRef = useRef<HTMLDivElement>(null);
   const flavorsContainerRef = useRef<HTMLDivElement>(null);
 
-  const [isHeroLocked, setIsHeroLocked] = useState(false);
-  const isHeroLockedRef = useRef(false);
+  const [isHeroLocked, setIsHeroLocked] = useState(true);
+  const isHeroLockedRef = useRef(true);
   isHeroLockedRef.current = isHeroLocked;
 
   const [isPourLocked, setIsPourLocked] = useState(false);
@@ -216,9 +216,13 @@ export function App() {
             }
           }
 
-          // Update HOME active nav when user returns to top
+          // Re-lock hero and update active nav when user returns to top
           if (scrollY <= 15) {
             setActiveNav('HOME');
+            if (!isHeroLockedRef.current && !isNavigatingRef.current) {
+              setIsHeroLocked(true);
+              isHeroLockedRef.current = true;
+            }
           }
 
           const pourEl = pourContainerRef.current;
