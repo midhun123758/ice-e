@@ -230,6 +230,17 @@ export function JuiceScrollHero({
   const currentIndexRef = useRef(0);
   currentIndexRef.current = currentIndex;
 
+  // Interactive mouse parallax state for 3D depth floating
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+
+  const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const { clientX, clientY, currentTarget } = e;
+    const rect = currentTarget.getBoundingClientRect();
+    const x = (clientX - rect.left) / rect.width - 0.5;
+    const y = (clientY - rect.top) / rect.height - 0.5;
+    setMouseOffset({ x, y });
+  };
+
   // Reset flavor state when returning to hero
   useEffect(() => {
     if (isLocked) {
@@ -580,6 +591,7 @@ export function JuiceScrollHero({
     <section
       ref={heroRef}
       id="home"
+      onMouseMove={handleHeroMouseMove}
       className="relative w-full h-screen overflow-hidden select-none bg-[#259B57]"
       style={{
         touchAction: isLocked ? 'none' : 'auto',
@@ -657,13 +669,19 @@ export function JuiceScrollHero({
 
             {/* ====================================================
                 CENTER: CONDENSED ANTON LETTERS TIGHTLY FRAMING BOWL
-                Scaled to hug the bowl closely without colliding with left text
+                Scaled to hug the bowl closely with subtle counter-floating animation
                 ==================================================== */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none overflow-hidden">
+            <div
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none overflow-hidden will-change-transform"
+              style={{
+                transform: `translate3d(${-mouseOffset.x * 12}px, ${-mouseOffset.y * 12}px, 0)`,
+                transition: 'transform 0.25s cubic-bezier(0.2, 0, 0.2, 1)',
+              }}
+            >
               <div className="relative flex items-center justify-center">
-                {/* Left Word Segment */}
+                {/* Left Word Segment with gentle float animation */}
                 <span
-                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -mr-5 sm:-mr-8 lg:-mr-10"
+                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -mr-5 sm:-mr-8 lg:-mr-10 animate-letter-left"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -675,9 +693,9 @@ export function JuiceScrollHero({
                 {/* Center Spacer: sized to match the circular bowl */}
                 <div className="w-[46vw] sm:w-[40vw] md:w-[34vw] lg:w-[28vw] xl:w-[26vw] max-w-[370px] aspect-square shrink-0 pointer-events-none" />
 
-                {/* Right Word Segment */}
+                {/* Right Word Segment with gentle reverse float animation */}
                 <span
-                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -ml-5 sm:-ml-8 lg:-ml-10"
+                  className="text-[18vw] sm:text-[15vw] md:text-[13vw] lg:text-[130px] xl:text-[155px] font-normal uppercase leading-none text-white drop-shadow-[0_20px_45px_rgba(0,0,0,0.38)] -ml-5 sm:-ml-8 lg:-ml-10 animate-letter-right"
                   style={{
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: '0.01em',
@@ -696,6 +714,10 @@ export function JuiceScrollHero({
             <div
               ref={(el) => (bowlRefs.current[idx] = el)}
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 will-change-transform"
+              style={{
+                transform: `translate3d(${mouseOffset.x * 16}px, ${mouseOffset.y * 16}px, 0)`,
+                transition: 'transform 0.2s cubic-bezier(0.2, 0, 0.2, 1)',
+              }}
             >
               <div
                 onClick={() => {
@@ -712,9 +734,9 @@ export function JuiceScrollHero({
                     : 'Click to explore next flavor'
                 }
               >
-                {/* Enhanced Radial Glow behind circular bowl */}
+                {/* Enhanced Radial Glow behind circular bowl with pulsing breathing aura */}
                 <div
-                  className="absolute -inset-8 rounded-full blur-3xl opacity-50 pointer-events-none"
+                  className="absolute -inset-10 rounded-full blur-3xl opacity-60 pointer-events-none animate-aura-pulse"
                   style={{
                     background: `radial-gradient(circle, ${sec.color} 0%, transparent 70%)`,
                   }}
@@ -733,14 +755,21 @@ export function JuiceScrollHero({
             </div>
 
             {/* ====================================================
-                CENTER BOTTOM: "CHOOSE YOUR SCOOP" HAIRLINE LINE
+                CENTER BOTTOM: "CHOOSE YOUR SCOOP" & ANIMATED SCROLL CHEVRON
                 ==================================================== */}
-            <div className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-25 flex items-center gap-3 pointer-events-none opacity-85 select-none">
-              <div className="w-12 sm:w-20 h-[1px] bg-white/40" />
-              <span className="text-white text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase font-mono drop-shadow-sm">
-                choose your scoop
-              </span>
-              <div className="w-12 sm:w-20 h-[1px] bg-white/40" />
+            <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-25 flex flex-col items-center gap-1.5 pointer-events-none select-none">
+              <div className="flex items-center gap-3 opacity-85">
+                <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
+                <span className="text-white text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase font-mono drop-shadow-sm">
+                  choose your scoop
+                </span>
+                <div className="w-10 sm:w-16 h-[1px] bg-white/40" />
+              </div>
+              <div className="animate-scroll-bounce flex items-center justify-center text-white/70">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
             </div>
 
             {/* ====================================================
@@ -770,6 +799,38 @@ export function JuiceScrollHero({
 
           </div>
         ))}
+      </div>
+
+      {/* ====================================================
+          RIGHT SIDEBAR: INTERACTIVE FLAVOR PROGRESS DOTS
+          Shows 01..04 with smooth height expansion & glowing hover tooltips
+          ==================================================== */}
+      <div className="absolute right-4 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 z-35 flex flex-col items-center gap-3 pointer-events-auto">
+        {SECTIONS.map((sec, sIdx) => {
+          const isActive = sIdx === currentIndex;
+          return (
+            <button
+              key={sec.id}
+              onClick={() => goToSlide(sIdx)}
+              className="group relative flex items-center justify-end cursor-pointer p-1.5 transition-all duration-300"
+              title={`Switch to ${sec.fullName}`}
+            >
+              {/* Tooltip on hover */}
+              <span className="absolute right-7 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase whitespace-nowrap bg-black/80 text-white border border-white/20 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-xl">
+                {sec.number} • {sec.fullName}
+              </span>
+
+              {/* Indicator Pill / Dot */}
+              <div
+                className={`transition-all duration-500 rounded-full ${
+                  isActive
+                    ? 'w-2.5 h-7 sm:h-8 bg-white shadow-[0_0_14px_rgba(255,255,255,0.95)]'
+                    : 'w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white/35 group-hover:bg-white/80 group-hover:scale-125'
+                }`}
+              />
+            </button>
+          );
+        })}
       </div>
     </section>
   );

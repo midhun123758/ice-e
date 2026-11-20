@@ -147,3 +147,49 @@
   animation: spinContinuous 24s linear infinite;
   will-change: transform;
 }
+
+/* Editorial Floating Typography */
+@keyframes letterFloatLeft {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(-0.5deg); }
+}
+@keyframes letterFloatRight {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(7px) rotate(0.5deg); }
+}
+.animate-letter-left {
+  animation: letterFloatLeft 7s ease-in-out infinite;
+  will-change: transform;
+}
+.animate-letter-right {
+  animation: letterFloatRight 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Pulsing ambient aura behind circular bowl */
+@keyframes auraPulse {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.16); opacity: 0.72; }
+}
+.animate-aura-pulse {
+  animation: auraPulse 4.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Smooth Scroll Hint Bounce */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(5px); opacity: 0.45; }
+}
+.animate-scroll-bounce {
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+/* Subtle Shimmer Ray */
+@keyframes shimmerSweep {
+  0% { transform: translateX(-150%) rotate(25deg); }
+  100% { transform: translateX(250%) rotate(25deg); }
+}
+.animate-shimmer-sweep {
+  animation: shimmerSweep 6s ease-in-out infinite;
+}

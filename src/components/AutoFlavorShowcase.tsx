@@ -567,18 +567,10 @@ export function AutoFlavorShowcase({
           <div className="max-w-xl xl:max-w-2xl flex flex-col items-center md:items-start text-center md:text-left select-text">
             {/* Paragraph 1 */}
             <p
-              className="text-base sm:text-lg md:text-xl lg:text-[1.25rem] xl:text-[1.35rem] text-white font-normal leading-relaxed md:leading-snug lg:leading-normal tracking-normal mb-4 drop-shadow-md"
+              className="text-base sm:text-lg md:text-xl lg:text-[1.25rem] xl:text-[1.35rem] text-white font-normal leading-relaxed md:leading-snug lg:leading-normal tracking-normal mb-6 drop-shadow-md"
               style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
             >
               Born from an obsession with cold science and sensory contrast, ICE - E redefines small-batch artisanal frozen confectionery. Every scoop is an exploration of pure textures, natural fruits, and molten Belgian drizzles crafted by confectionery artisans.
-            </p>
-
-            {/* Paragraph 2 */}
-            <p
-              className="text-xs sm:text-sm md:text-base lg:text-[1.02rem] text-white/90 font-normal leading-relaxed tracking-normal mb-6 drop-shadow-md"
-              style={{ fontFamily: "'Fredoka', cursive, sans-serif" }}
-            >
-              ICE - E owes its signature smoothness to slow micro-batch churning, blending organic whole milk with real botanical extracts and crisp fruit wheels. Revered by dessert connoisseurs for unrivaled freshness, delicate crystallization-free texture, and world-class culinary craft.
             </p>
 
             {/* Action Button to Next Section (The Crunch Experience) */}
